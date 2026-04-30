@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'OCR B Std';
+    src: url('OCRBStd.eot');
+    src: local('OCRBStd'),
+        url('OCRBStd.eot?#iefix') format('embedded-opentype'),
+        url('OCRBStd.woff2') format('woff2'),
+        url('OCRBStd.woff') format('woff'),
+        url('OCRBStd.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+

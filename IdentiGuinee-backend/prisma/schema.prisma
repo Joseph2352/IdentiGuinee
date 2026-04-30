@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserRole {
+  CITOYEN
+  ADMIN
+}
+
+enum Sexe {
+  M
+  F
+}
+
+enum TypeDemande {
+  PREMIERE_DEMANDE
+  RENOUVELLEMENT
+  DUPLICATA
+}
+
+enum StatutDemande {
+  SOUMISE
+  VERIFICATION
+  PRODUCTION
+  DELIVREE
+  REJETEE
+}
+
+enum StatutCarte {
+  ACTIVE
+  REVOQUEE
+  EXPIREE
+}
+
+enum TypeTransaction {
+  DEMANDE_SOUMISE
+  CARTE_DELIVREE
+  VERIFICATION
+  REVOCATION
+}
+
+enum ResultatVerification {
+  VALIDE
+  INVALIDE
+  REVOQUEE
+}
+
+// ==========================================
+// MODELS
+// ==========================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String?  @unique
+  telephone    String   @unique
+  passwordHash String
+  role         UserRole @default(CITOYEN)
+  isVerified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  citoyen Citoyen?
+
+  @@map("users")
+}
+
+model Citoyen {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  nin             String?  @unique
+  nom             String
+  prenom          String
+  sexe            Sexe
+  dateNaissance   DateTime
+  lieuNaissance   String
+  nationalite     String   @default("Guinéenne")
+  taille          String?
+  regionId        String?
+  prefectureId    String?
+  sousPrefectureId String?
+  quartier        String?
+  secteurVillage  String?
+  photoUrl        String?
+  signatureUrl    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  region          Region?          @relation(fields: [regionId], references: [id])
+  prefecture      Prefecture?      @relation(fields: [prefectureId], references: [id])
+  sousPrefecture  SousPrefecture?  @relation(fields: [sousPrefectureId], references: [id])
+  cartes          CarteIdentite[]
+  demandes        Demande[]
+
+  @@map("citoyens")
+}
+
+model CarteIdentite {
+  id                 String      @id @default(uuid())
+  citoyenId          String
+  numeroCarte        String      @unique
+  codePays           String      @default("GIN")
+  dateEmission       DateTime
+  dateExpiration     DateTime
+  lieuDelivrance     String?
+  autoriteDelivrance String      @default("Le Directeur Général de la Police Nationale")
+  mrzLigne1          String?
+  mrzLigne2          String?
+  mrzLigne3          String?
+  blockchainHash     String?     @unique
+  statut             StatutCarte @default(ACTIVE)
+  qrCodeData         String?     @db.Text
+  carteRectoUrl      String?
+  carteVersoUrl      String?
+  createdAt          DateTime    @default(now())
+
+  citoyen        Citoyen               @relation(fields: [citoyenId], references: [id], onDelete: Cascade)
+  demandes       Demande[]
+  transactions   BlockchainTransaction[]
+  verifications  Verification[]
+
+  @@map("cartes_identite")
+}
+
+model Demande {
+  id                  String        @id @default(uuid())
+  citoyenId           String
+  reference           String        @unique
+  type                TypeDemande
+  statut              StatutDemande @default(SOUMISE)
+  progression         Int           @default(0)
+  motifRejet          String?       @db.Text
+  extraitNaissanceUrl String?
+  carteId             String?
+  dateSoumission      DateTime      @default(now())
+  dateTraitement      DateTime?
+  updatedAt           DateTime      @updatedAt
+
+  citoyen      Citoyen               @relation(fields: [citoyenId], references: [id], onDelete: Cascade)
+  carte        CarteIdentite?        @relation(fields: [carteId], references: [id])
+  transactions BlockchainTransaction[]
+
+  @@map("demandes")
+}
+
+model BlockchainTransaction {
+  id          String          @id @default(uuid())
+  txHash      String          @unique
+  type        TypeTransaction
+  referenceId String?
+  blockNumber String?
+  metadata    Json?
+  createdAt   DateTime        @default(now())
+
+  carteId   String?
+  demandeId String?
+  carte     CarteIdentite? @relation(fields: [carteId], references: [id])
+  demande   Demande?       @relation(fields: [demandeId], references: [id])
+
+  @@map("blockchain_transactions")
+}
+
+model Verification {
+  id        String               @id @default(uuid())
+  carteId   String
+  institution String?
+  typeAcces   String?
+  resultat    ResultatVerification?
+  ipAddress   String?
+  createdAt   DateTime           @default(now())
+
+  carte CarteIdentite @relation(fields: [carteId], references: [id], onDelete: Cascade)
+
+  @@map("verifications")
+}
+
+// ==========================================
+// TABLES GÉOGRAPHIQUES
+// ==========================================
+
+model Region {
+  id          String       @id @default(uuid())
+  nom         String       @unique
+  code        String?
+  createdAt   DateTime     @default(now())
+
+  prefectures Prefecture[]
+  citoyens    Citoyen[]
+
+  @@map("regions")
+}
+
+model Prefecture {
+  id        String   @id @default(uuid())
+  regionId  String
+  nom       String
+  code      String?
+  createdAt DateTime @default(now())
+
+  region          Region           @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  sousPrefectures SousPrefecture[]
+  citoyens        Citoyen[]
+
+  @@map("prefectures")
+}
+
+model SousPrefecture {
+  id           String   @id @default(uuid())
+  prefectureId String
+  nom          String
+  code         String?
+  createdAt    DateTime @default(now())
+
+  prefecture Prefecture @relation(fields: [prefectureId], references: [id], onDelete: Cascade)
+  citoyens   Citoyen[]
+
+  @@map("sous_prefectures")
+}
