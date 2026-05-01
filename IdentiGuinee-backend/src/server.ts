@@ -21,6 +21,7 @@ import blockchainRoutes from './modules/blockchain/router/blockchain.router.js';
 import verificationRoutes from './modules/verifications/router/verification.router.js';
 import geoRoutes from './modules/geo/router/geo.router.js';
 import carteRoutes from './modules/cartes/router/carte.router.js';
+import { runSeed } from './scripts/seed.js';
 
 const app = express();
 
@@ -102,6 +103,9 @@ async function boot() {
     console.error('❌ Impossible de démarrer le serveur sans connexion à la base de données.');
     process.exit(1);
   }
+
+  // Auto-seed Data
+  await runSeed();
 
   // Auto-create Admin User
   if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {

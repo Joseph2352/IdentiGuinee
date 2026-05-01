@@ -1,16 +1,26 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { citoyenService } from '../../services/citoyen.service';
+import { toast } from 'react-hot-toast';
 
 const Citizens: React.FC = () => {
-  const citizensList = [
-    { id: '1', nin: '199061203647631', name: 'BAH Oumar', dob: '12/06/1999', status: 'verified', hash: '0x4f2a...1a2b', date: 'Aujourd\'hui, 10:24' },
-    { id: '2', nin: '198503124891022', name: 'DIALLO Fatoumata', dob: '03/12/1985', status: 'verified', hash: '0x3e1b...c782', date: 'Aujourd\'hui, 09:12' },
-    { id: '3', nin: '199706044421837', name: 'KOUYATÉ Aissatou', dob: '06/04/1997', status: 'flagged', hash: 'N/A (Anomalie)', date: 'Hier, 16:45' },
-    { id: '4', nin: '200107085634711', name: 'SYLLA Ibrahim', dob: '07/08/2001', status: 'pending_auto', hash: 'En cours d\'ancrage...', date: 'Hier, 14:30' },
-    { id: '5', nin: '200312201145609', name: 'CONDÉ Sékou', dob: '20/12/2003', status: 'verified', hash: '0x5g3a...e812', date: '11/04/2026' },
-    { id: '6', nin: '199209143302814', name: 'BARRY Thierno', dob: '14/09/1992', status: 'verified', hash: '0x1d5f...a044', date: '11/04/2026' },
-    { id: '7', nin: '200109172234561', name: 'FOFANA Moussa', dob: '17/09/2001', status: 'flagged', hash: 'Incohérence AFIS', date: '10/04/2026' },
-    { id: '8', nin: '199604287412093', name: 'TRAORÉ Lansana', dob: '28/04/1996', status: 'verified', hash: '0xbk7f...c119', date: '09/04/2026' }
-  ];
+  const [citizens, setCitizens] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
+
+  useEffect(() => {
+    const fetchCitizens = async () => {
+      try {
+        const res = await citoyenService.getAll();
+        setCitizens(res.data?.citoyens || []);
+        setTotal(res.data?.total || 0);
+      } catch (error) {
+        toast.error('Erreur lors du chargement des citoyens');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCitizens();
+  }, []);
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12 font-body">
@@ -34,9 +44,9 @@ const Citizens: React.FC = () => {
             <span className="text-xs uppercase font-bold tracking-widest text-outline">Total Citoyens Enregistrés</span>
             <span className="material-symbols-outlined text-primary/40 text-2xl">groups</span>
           </div>
-          <h3 className="text-3xl font-headline font-bold text-on-surface">3,492,041</h3>
+          <h3 className="text-3xl font-headline font-bold text-on-surface">{total.toLocaleString()}</h3>
           <p className="text-[10px] text-green-600 font-bold mt-2 flex items-center gap-1">
-            <span className="material-symbols-outlined text-[12px]">trending_up</span> +12k ce mois
+            <span className="material-symbols-outlined text-[12px]">trending_up</span> Registre à jour
           </p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
@@ -96,58 +106,44 @@ const Citizens: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
-              {citizensList.map((citizen) => (
+              {citizens.map((citizen) => (
                 <tr key={citizen.id} className="hover:bg-surface-container-low transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ${
-                        citizen.status === 'verified' ? 'bg-primary/10 text-primary' : 
-                        citizen.status === 'flagged' ? 'bg-error/10 text-error' : 
-                        'bg-secondary/10 text-secondary'
-                      }`}>
-                        {citizen.name.substring(0, 2).toUpperCase()}
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs bg-primary/10 text-primary`}>
+                        {citizen.prenom[0]}{citizen.nom[0]}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-on-surface">{citizen.name}</p>
-                        <p className="text-[10px] text-outline mt-0.5">Né(e) le {citizen.dob}</p>
+                        <p className="text-sm font-bold text-on-surface">{citizen.prenom} {citizen.nom}</p>
+                        <p className="text-[10px] text-outline mt-0.5">Né(e) le {new Date(citizen.dateNaissance).toLocaleDateString()}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className="font-mono text-xs font-bold text-primary tracking-tighter bg-primary/5 px-2 py-1 rounded">
-                      {citizen.nin}
+                      {citizen.nin || '---'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1.5">
-                      {citizen.status === 'verified' && (
-                        <span className="bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]">verified</span> Actif
-                        </span>
-                      )}
-                      {citizen.status === 'pending_auto' && (
-                        <span className="bg-orange-50 text-orange-700 border border-orange-200 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]">cycle</span> Auto-examen
-                        </span>
-                      )}
-                      {citizen.status === 'flagged' && (
-                        <span className="bg-red-50 text-red-700 border border-red-200 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[12px]">warning</span> Suspect
-                        </span>
-                      )}
+                      <span className="bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[12px]">verified</span> Actif
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <p className={`font-mono text-[10px] truncate max-w-[120px] ${citizen.status === 'verified' ? 'text-green-600' : 'text-outline'}`}>
-                      {citizen.hash}
+                    <p className={`font-mono text-[10px] truncate max-w-[120px] text-green-600`}>
+                      {citizen.signatureUrl ? 'Certifié Blockchain' : 'Ancrage en cours'}
                     </p>
-                    <p className="text-[9px] text-outline mt-0.5 uppercase tracking-wide">{citizen.date}</p>
+                    <p className="text-[9px] text-outline mt-0.5 uppercase tracking-wide">{new Date(citizen.createdAt).toLocaleDateString()}</p>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button className="text-primary hover:underline text-xs font-bold px-3 py-1.5 rounded hover:bg-primary/5 transition-colors">Consulter Profil</button>
                   </td>
                 </tr>
               ))}
+              {loading && <tr><td colSpan={5} className="py-10 text-center text-outline italic">Chargement...</td></tr>}
+              {!loading && citizens.length === 0 && <tr><td colSpan={5} className="py-10 text-center text-outline italic">Aucun citoyen trouvé</td></tr>}
             </tbody>
           </table>
         </div>

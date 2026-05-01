@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { blockchainService } from '../../services/blockchain.service';
+import { toast } from 'react-hot-toast';
 
 const Blockchain: React.FC = () => {
   const [logs, setLogs] = useState<string[]>([
@@ -7,6 +9,28 @@ const Blockchain: React.FC = () => {
     "[SYNC] VALIDATING PREVIOUS BLOCKS... 100% COMPLETE",
     "[INFO] LISTENING FOR NEW TRANSACTIONS..."
   ]);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const [txRes, statsRes] = await Promise.all([
+        blockchainService.getAll(1, 10),
+        blockchainService.getStats()
+      ]);
+      setTransactions(txRes.data?.transactions || []);
+      setStats(statsRes.data || statsRes);
+    } catch (error) {
+      toast.error('Erreur lors du chargement de la blockchain');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Simulate real-time blocks
   useEffect(() => {
@@ -35,15 +59,6 @@ const Blockchain: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const ledgerTransactions = [
-    { block: '#294,013', type: 'Délivrance_CNI', hash: '0x4f2a8b3c9d1e5f7a2b4c6d8e0f1a3b5c7d9e1f2a', date: 'Il y a 12s', status: 'confirmé' },
-    { block: '#294,012', type: 'Vérification_AFIS', hash: '0x3e1b7c2d8a9f0e1d2c3b4a5f6e7d8c9b0a1f2e3d', date: 'Il y a 2m', status: 'confirmé' },
-    { block: '#294,012', type: 'Inscription_Naissance', hash: '0x5g3a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s', date: 'Il y a 2m', status: 'confirmé' },
-    { block: '#294,011', type: 'Révocation_Passeport', hash: '0x7e4d5c6b7a8f9e0d1c2b3a4f5e6d7c8b9a0f1e2d', date: 'Il y a 5m', status: 'confirmé' },
-    { block: '#294,010', type: 'Tentative_Doublon', hash: '0x2b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c', date: 'Il y a 8m', status: 'rejeté' },
-    { block: '#294,009', type: 'Délivrance_Extrait', hash: '0x1d5f4e3d2c1b0a9f8e7d6c5b4a3f2e1d0c9b8a7f', date: 'Il y a 14m', status: 'confirmé' },
-  ];
-
   return (
     <div className="space-y-6 animate-fadeIn pb-12 font-body">
       
@@ -63,15 +78,15 @@ const Blockchain: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-2">
         <div className="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10 text-center">
           <p className="text-[10px] uppercase font-bold tracking-widest text-outline mb-1">Hauteur du bloc</p>
-          <h3 className="text-2xl font-mono font-bold text-primary">294,013</h3>
+          <h3 className="text-2xl font-mono font-bold text-primary">{stats?.total || 294013}</h3>
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10 text-center">
-          <p className="text-[10px] uppercase font-bold tracking-widest text-outline mb-1">Temps de bloc moyen</p>
-          <h3 className="text-2xl font-mono font-bold text-primary">2.4<span className="text-base text-outline ml-1">sec</span></h3>
+          <p className="text-[10px] uppercase font-bold tracking-widest text-outline mb-1">Total Transactions</p>
+          <h3 className="text-2xl font-mono font-bold text-primary">{stats?.total || 0}</h3>
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10 text-center">
-          <p className="text-[10px] uppercase font-bold tracking-widest text-outline mb-1">Délai d'émission (avg)</p>
-          <h3 className="text-2xl font-mono font-bold text-primary">~48<span className="text-base text-outline ml-1">h</span></h3>
+          <p className="text-[10px] uppercase font-bold tracking-widest text-outline mb-1">Vérifications</p>
+          <h3 className="text-2xl font-mono font-bold text-primary">{stats?.verifications || 0}</h3>
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-xl shadow-sm border border-outline-variant/10 text-center">
           <p className="text-[10px] uppercase font-bold tracking-widest text-outline mb-1">Nœuds Validateurs Actifs</p>
@@ -134,35 +149,30 @@ const Blockchain: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
-              {ledgerTransactions.map((tx, i) => (
+              {transactions.map((tx, i) => (
                 <tr key={i} className="hover:bg-surface-container-low transition-colors group">
-                  <td className="px-6 py-4 font-mono text-xs font-bold text-primary">{tx.block}</td>
-                  <td className="px-6 py-4 text-xs text-outline">{tx.date}</td>
+                  <td className="px-6 py-4 font-mono text-xs font-bold text-primary">#{tx.blockNumber || '---'}</td>
+                  <td className="px-6 py-4 text-xs text-outline">{new Date(tx.createdAt).toLocaleString()}</td>
                   <td className="px-6 py-4">
-                    <span className="bg-secondary/10 text-secondary-container px-2 py-1 rounded text-[10px] font-bold border border-secondary/20">
-                      {tx.type}
+                    <span className="bg-secondary/10 text-secondary-container px-2 py-1 rounded text-[10px] font-bold border border-secondary/20 uppercase">
+                      {tx.type.replace(/_/g, ' ')}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <span className="font-mono text-[11px] text-outline bg-surface-container-low px-2 py-1 rounded">
-                      {tx.hash}
+                      {tx.txHash.substring(0, 10)}...{tx.txHash.substring(tx.txHash.length - 10)}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    {tx.status === 'confirmé' ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase tracking-widest">
-                        <span className="material-symbols-outlined text-sm">lock</span>
-                        Confirmé
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-error uppercase tracking-widest">
-                        <span className="material-symbols-outlined text-sm">block</span>
-                        Rejeté
-                      </span>
-                    )}
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase tracking-widest">
+                      <span className="material-symbols-outlined text-sm">lock</span>
+                      Confirmé
+                    </span>
                   </td>
                 </tr>
               ))}
+              {loading && <tr><td colSpan={5} className="py-12 text-center text-outline italic">Chargement du ledger...</td></tr>}
+              {!loading && transactions.length === 0 && <tr><td colSpan={5} className="py-12 text-center text-outline italic">Aucune transaction enregistrée</td></tr>}
             </tbody>
           </table>
         </div>

@@ -29,23 +29,15 @@ const AdminHeader: React.FC<{ title: string; onMenuToggle: () => void }> = ({ ti
       </div>
       
       <div className="flex items-center gap-6">
-        <div className="hidden md:flex items-center gap-2 bg-primary/5 px-4 py-1.5 rounded-full border border-primary/10">
-          <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-          <span className="text-[10px] font-bold text-primary uppercase tracking-tighter">Blockchain: Mainnet Active</span>
-        </div>
         <div className="flex items-center gap-3">
-          <button className="relative p-2 text-outline hover:text-primary transition-colors hover:bg-surface-container-low rounded-full">
-            <span className="material-symbols-outlined">notifications</span>
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-tertiary rounded-full border-2 border-white"></span>
-          </button>
           <div className="h-8 w-[1px] bg-surface-variant/30 hidden sm:block"></div>
           <div className="flex items-center gap-3 pl-2 group cursor-pointer">
             <div className="text-right hidden sm:block">
-              <p className="text-xs font-bold text-on-surface leading-tight">M. Camara</p>
-              <p className="text-[9px] text-outline uppercase font-bold tracking-tighter">Admin National</p>
+              <p className="text-xs font-bold text-on-surface leading-tight">Admin System</p>
+              <p className="text-[9px] text-outline uppercase font-bold tracking-tighter">Super-utilisateur</p>
             </div>
-            <div className="w-10 h-10 bg-primary-container/20 rounded-full flex items-center justify-center border-2 border-primary group-hover:shadow-md transition-all overflow-hidden">
-               <img src="/assets/external-assets/asset_1.png" alt="Admin" className="w-full h-full object-cover" />
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border-2 border-primary group-hover:shadow-md transition-all overflow-hidden">
+               <img src="/favicon.png" alt="Admin" className="w-full h-full object-cover" />
             </div>
           </div>
         </div>

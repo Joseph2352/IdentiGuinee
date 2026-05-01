@@ -140,6 +140,7 @@ model Demande {
   progression         Int           @default(0)
   motifRejet          String?       @db.Text
   extraitNaissanceUrl String?
+  extraitNaissanceId  String?
   carteId             String?
   dateSoumission      DateTime      @default(now())
   dateTraitement      DateTime?

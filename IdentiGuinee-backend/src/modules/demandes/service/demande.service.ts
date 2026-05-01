@@ -25,7 +25,7 @@ class DemandeService {
     return demandeRepository.findByCitoyenId(citoyen.id);
   }
 
-  async create(citoyenId: string, data: { type: string; extraitNaissanceUrl?: string; signatureUrl?: string }) {
+  async create(citoyenId: string, data: { type: string; extraitNaissanceUrl?: string; extraitNaissanceId?: string; signatureUrl?: string }) {
     const reference = `REQ-GN-${new Date().getFullYear()}-${uuidv4().substring(0, 4).toUpperCase()}`;
 
     const demande = await demandeRepository.create({
@@ -35,6 +35,7 @@ class DemandeService {
       statut: 'SOUMISE',
       progression: 10,
       extraitNaissanceUrl: data.extraitNaissanceUrl,
+      extraitNaissanceId: data.extraitNaissanceId,
     });
 
     // Mettre à jour la signature du citoyen si fournie
@@ -76,7 +77,7 @@ class DemandeService {
     }
   }
 
-  async createFromUser(userId: string, data: { type: string; extraitNaissanceUrl?: string; signatureUrl?: string }) {
+  async createFromUser(userId: string, data: { type: string; extraitNaissanceUrl?: string; extraitNaissanceId?: string; signatureUrl?: string }) {
     const citoyen = await prisma.citoyen.findUnique({ where: { userId } });
     if (!citoyen) throw new Error('Complétez votre profil avant de soumettre une demande');
     return this.create(citoyen.id, data);
@@ -113,7 +114,22 @@ class DemandeService {
       demandeRepository.count({ statut: 'DELIVREE' }),
       demandeRepository.count({ statut: 'REJETEE' }),
     ]);
-    return { total, soumises, enVerification, enProduction, delivrees, rejetees };
+
+    const tauxDelivrance = total > 0 ? Math.round((delivrees / total) * 100) : 0;
+    const enAttente = soumises + enVerification + enProduction;
+    const fraudes = rejetees; // Simulation: les rejets sont considérés comme des fraudes détectées
+
+    return { 
+      total, 
+      soumises, 
+      enVerification, 
+      enProduction, 
+      delivrees, 
+      rejetees,
+      tauxDelivrance,
+      enAttente,
+      fraudes
+    };
   }
 }
 

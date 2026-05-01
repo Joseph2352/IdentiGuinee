@@ -18,4 +18,8 @@ export const citoyenService = {
     });
     return response.data;
   },
+  getAll: async (page = 1, limit = 20) => {
+    const response = await api.get('/citoyens', { params: { page, limit } });
+    return response.data;
+  },
 };

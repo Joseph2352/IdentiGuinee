@@ -45,14 +45,19 @@ const regionsData = [
   }
 ];
 
-async function main() {
-  console.log('🌱 Début du peuplement de la base de données...');
+export async function runSeed() {
+  const regionsCount = await prisma.region.count();
+  
+  if (regionsCount > 0) {
+    console.log('ℹ️ Données géographiques déjà présentes. Saut du peuplement.');
+    return;
+  }
+
+  console.log('🌱 Début du peuplement automatique de la base de données...');
 
   for (const region of regionsData) {
-    const createdRegion = await prisma.region.upsert({
-      where: { nom: region.nom },
-      update: {},
-      create: {
+    const createdRegion = await prisma.region.create({
+      data: {
         nom: region.nom,
         code: region.code
       }
@@ -78,14 +83,17 @@ async function main() {
     }
   }
 
-  console.log('✅ Peuplement terminé avec succès !');
+  console.log('✅ Peuplement automatique terminé avec succès !');
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// Support manual execution
+if (process.argv[1] && process.argv[1].includes('seed.ts')) {
+  runSeed()
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

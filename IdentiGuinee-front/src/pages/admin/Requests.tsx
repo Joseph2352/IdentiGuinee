@@ -193,6 +193,24 @@ const Requests: React.FC = () => {
                           )}
                       </div>
                       
+                      <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10 space-y-4">
+                         <div className="flex justify-between items-center">
+                            <div>
+                               <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">ID Extrait de Naissance</p>
+                               <p className="font-mono text-sm font-bold text-primary">{selectedRequest.extraitNaissanceId || 'NON RENSEIGNÉ'}</p>
+                            </div>
+                            {selectedRequest.extraitNaissanceId && (
+                               <div className="flex items-center gap-2">
+                                  <span className="flex h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+                                  <span className="text-[10px] font-black text-green-600 uppercase">Vérifié (Auto)</span>
+                               </div>
+                            )}
+                         </div>
+                         {!selectedRequest.extraitNaissanceId && (
+                            <p className="text-[10px] text-red-500 italic">Attention: Aucun ID d'extrait fourni par l'usager.</p>
+                         )}
+                      </div>
+
                       <div className="p-6 bg-surface-container-lowest border border-outline-variant/20 rounded-3xl flex items-center justify-between">
                          <div>
                             <p className="text-[10px] font-black text-outline uppercase mb-1">Statut Actuel</p>

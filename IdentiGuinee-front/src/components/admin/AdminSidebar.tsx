@@ -1,7 +1,15 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { authService } from '../../services/auth.service';
 
 const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  const navigate = useNavigate();
+  
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login');
+  };
+
   const navItems = [
     { to: '/admin/dashboard', icon: 'dashboard', label: 'Tableau de bord' },
     { to: '/admin/requests', icon: 'description', label: 'Demandes' },
@@ -49,13 +57,13 @@ const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
       <div className="px-6 mb-8">
         <div className="bg-primary-container/20 p-3 rounded-xl flex items-center gap-3 border border-white/5">
           <img 
-            className="w-10 h-10 rounded-full object-cover border-2 border-primary" 
-            src="/assets/external-assets/asset_1.png" 
+            className="w-10 h-10 rounded-full object-cover border-2 border-primary bg-white" 
+            src="/favicon.png" 
             alt="Admin" 
           />
           <div className="overflow-hidden">
-            <p className="text-sm font-semibold truncate">Moussa Camara</p>
-            <p className="text-[10px] text-primary-fixed truncate">Directeur National IT</p>
+            <p className="text-sm font-semibold truncate">Admin System</p>
+            <p className="text-[10px] text-primary-fixed truncate">Super-utilisateur</p>
           </div>
         </div>
       </div>
@@ -108,6 +116,14 @@ const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
           <span className="material-symbols-outlined">settings</span>
           <span className="text-sm">Paramètres</span>
         </NavLink>
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-red-300 hover:bg-red-500/10 mt-4 border border-red-500/10"
+        >
+          <span className="material-symbols-outlined">logout</span>
+          <span className="text-sm font-bold uppercase tracking-widest">Déconnexion</span>
+        </button>
       </nav>
 
       {/* Footer Sidebar */}

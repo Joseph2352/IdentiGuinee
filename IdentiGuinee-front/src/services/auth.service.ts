@@ -9,4 +9,8 @@ export const authService = {
     const response = await api.post('/auth/register', userData);
     return response.data;
   },
+  logout: () => {
+    localStorage.removeItem('identiguinee_token');
+    localStorage.removeItem('identiguinee_user');
+  }
 };

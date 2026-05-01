@@ -57,6 +57,7 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
     sousPrefectureId: profile?.sousPrefectureId || '',
     quartier: profile?.quartier || '',
     secteurVillage: profile?.secteurVillage || '',
+    extraitId: '',
   });
 
   // Chargement initial des régions
@@ -165,6 +166,7 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
       const prefectureNom = prefectures.find(p => p.id === formData.prefectureId)?.nom || '';
       const adresseTexte = `${formData.quartier}, ${prefectureNom}, ${regionNom}`;
       data.append('adresse', adresseTexte);
+      if (formData.extraitId) data.append('extraitNaissanceId', formData.extraitId);
 
       await demandeService.create(data);
       toast.success('Demande soumise avec succès !');
@@ -416,7 +418,22 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
                    {file && <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-4 py-1 rounded-full animate-fadeIn">Fichier prêt</span>}
                  </div>
                </label>
-            </div>
+
+                <div className="space-y-1.5 px-4 animate-fadeIn">
+                  <label className="text-[10px] font-bold text-outline uppercase tracking-widest ml-1 text-left block">Numéro de l'Extrait de Naissance</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 text-lg">fingerprint</span>
+                    <input 
+                      type="text"
+                      value={formData.extraitId}
+                      onChange={(e) => setFormData({...formData, extraitId: e.target.value})}
+                      placeholder="Ex: GN-2024-8849-22"
+                      className="w-full bg-surface-container-low border border-outline-variant/20 rounded-2xl h-11 pl-10 pr-4 focus:ring-1 focus:ring-primary focus:bg-white outline-none transition-all font-bold text-sm text-on-surface"
+                    />
+                  </div>
+                  <p className="text-[9px] text-outline italic ml-1 mt-1">Saisissez l'identifiant unique figurant sur votre document officiel.</p>
+                </div>
+             </div>
           )}
 
           {step === 5 && (
