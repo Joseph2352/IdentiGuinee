@@ -50,7 +50,7 @@ const CitizenDashboard: React.FC = () => {
         data.append('type', 'DUPLICATA');
         data.append('adresse', profile.quartier || 'Non renseignée');
         await demandeService.create(data as any);
-        toast.success("Déclaration enregistrée ! La demande de duplicata est en production.");
+        toast.success("Déclaration enregistrée ! Votre demande de duplicata est en attente de validation.");
         fetchDemandes();
       } catch (error: any) {
         toast.error(error.response?.data?.message || 'Erreur lors de la déclaration');
