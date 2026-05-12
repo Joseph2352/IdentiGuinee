@@ -56,9 +56,9 @@ const SOLUTION_CARDS = [
   },
   {
     icon: "auto_awesome",
-    title: "Vérification automatique",
-    desc: "Le smart contract croise votre demande avec NaissanceChain en quelques secondes. Zéro agent dans la boucle de décision — personne à corrompre.",
-    tag: "Smart Contract",
+    title: "Vérification assistée",
+    desc: "Le smart contract aide l'administration à croiser votre demande avec NaissanceChain. Une validation sécurisée qui réduit drastiquement les risques de corruption.",
+    tag: "Sécurité",
   },
   {
     icon: "qr_code_2",
@@ -72,7 +72,7 @@ const STEPS = [
   { n: "01", t: "Créer un compte", d: "Inscription sécurisée par OTP via numéro guinéen. Aucun déplacement requis.", icon: "person_add" },
   { n: "02", t: "Remplir le formulaire", d: "Vos données d'état civil — nom, date et lieu de naissance, filiation.", icon: "edit_document" },
   { n: "03", t: "Uploader vos pièces", d: "Photo d'identité et justificatifs numériques depuis votre téléphone.", icon: "upload_file" },
-  { n: "04", t: "Ancrage blockchain", d: "NaissanceChain valide automatiquement et inscrit votre identité de manière immuable.", icon: "hub" },
+  { n: "04", t: "Validation Admin", d: "L'administration vérifie vos pièces et valide l'ancrage de votre identité sur la blockchain.", icon: "admin_panel_settings" },
   { n: "05", t: "Document reçu", d: "CNI numérique avec signature cryptographique en 48h — sans aucun pot-de-vin.", icon: "task_alt" },
 ];
 
@@ -86,7 +86,7 @@ const COMPARISON = [
   {
     critere: "Délai de délivrance",
     ancien: "30 à 90 jours (avec pots-de-vin)",
-    nouveau: "48 heures — validation automatique par smart contract",
+    nouveau: "48 à 72 heures — validation administrative certifiée par blockchain",
     win: true,
   },
   {
@@ -119,8 +119,8 @@ const PERSONAS = [
   {
     icon: "account_balance",
     role: "L'Administration publique",
-    quote: "Mon travail est simplifié par la validation automatique des dossiers. Je n'ai plus à traiter des centaines de demandes papier — le smart contract le fait à ma place.",
-    impact: "Réduction de 90% du temps de traitement",
+    quote: "Mon travail est simplifié par la pré-vérification des dossiers. Je peux valider les demandes en un clic — le système garantit l'intégrité des données.",
+    impact: "Réduction de 75% du temps de traitement",
   },
   {
     icon: "account_balance_wallet",
@@ -239,7 +239,7 @@ const Home: React.FC = () => {
             </Reveal>
             <Reveal width="100%" delay={0.1}>
               <p className="text-lg text-on-surface-variant max-w-xl mx-auto">
-                Une infrastructure de confiance fondée sur l'automatisation complète — zéro intermédiaire, zéro corruption possible.
+                Une infrastructure de confiance fondée sur la transparence — des processus validés par l'administration et certifiés par blockchain.
               </p>
             </Reveal>
           </div>
