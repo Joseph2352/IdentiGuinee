@@ -29,7 +29,7 @@ const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
         ></div>
       )}
 
-      <aside className={`fixed inset-y-0 left-0 w-[260px] bg-[#1A3A1C] text-white flex-shrink-0 flex flex-col pt-8 z-[60] transition-transform duration-300 transform lg:relative lg:translate-x-0 ${
+      <aside className={`fixed inset-y-0 left-0 w-[260px] bg-[#1A3A1C] text-white flex-shrink-0 flex flex-col z-[60] transition-transform duration-300 transform lg:relative lg:translate-x-0 ${
         isOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
 
@@ -44,13 +44,26 @@ const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
       
 
 
+      {/* Logo Section */}
+      <div className="px-6 py-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-white flex items-center justify-center rounded-lg shadow-sm border border-white/10 overflow-hidden">
+            <img src="/favicon.png" alt="Logo" className="w-7 h-7 object-contain" />
+          </div>
+          <div>
+            <h1 className="font-headline font-bold text-xl leading-tight tracking-tight text-white">IdentiGuinée</h1>
+            <p className="text-[10px] uppercase tracking-widest text-white/50">Portail Admin</p>
+          </div>
+        </div>
+      </div>
+
       {/* Admin Profile */}
       <div className="px-6 mb-8">
         <div className="bg-primary-container/20 p-3 rounded-xl flex items-center gap-3 border border-white/5">
-          <div className="w-10 h-10 rounded-full border-2 border-primary bg-white flex items-center justify-center overflow-hidden shrink-0">
+          <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden shrink-0">
             <img 
-              className="w-7 h-7 object-contain" 
-              src="/favicon.png" 
+              className="w-full h-full object-cover" 
+              src="https://ui-avatars.com/api/?name=Admin+System&background=1A3A1C&color=fff&bold=true&size=128"
               alt="Admin" 
             />
           </div>
