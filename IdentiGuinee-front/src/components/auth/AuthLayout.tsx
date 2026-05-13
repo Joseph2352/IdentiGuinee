@@ -9,16 +9,10 @@ interface AuthLayoutProps {
 const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, onTabChange }) => {
   return (
     <div className="bg-white min-h-screen flex flex-col font-sans selection:bg-secondary-container">
-      {/* 8px Tricolor Band */}
-      <div className="fixed top-0 left-0 right-0 h-2 flex z-[300]">
-        <div className="bg-[#CE1126] flex-1"></div>
-        <div className="bg-[#FCD116] flex-1"></div>
-        <div className="bg-[#009460] flex-1"></div>
-      </div>
 
       <div className="flex flex-col lg:flex-row min-h-screen">
         {/* Left Panel (Institutional) */}
-        <div className="lg:w-1/2 bg-primary text-white p-6 lg:p-10 flex flex-col justify-between relative overflow-hidden h-screen">
+        <div className="hidden lg:flex lg:w-1/2 bg-primary text-white p-6 lg:p-10 flex-col justify-between relative overflow-hidden h-screen">
           {/* Background Decorative Pattern */}
           <div className="absolute inset-0 opacity-5 pointer-events-none">
             <svg height="100%" width="100%">
@@ -31,10 +25,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, onTabChang
           
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-6 cursor-pointer" onClick={() => window.location.href = '/'}>
-              <div className="bg-white p-1.5 rounded-lg">
-                <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>security</span>
-              </div>
-              <span className="text-lg font-bold tracking-tight">IdentiGuinée</span>
+                <img src="/favicon.png" alt="Logo" className="w-14 h-14 object-contain" />
+              <span className="text-xl font-bold tracking-tight">IdentiGuinée</span>
             </div>
             
             <h1 className="text-3xl lg:text-4xl font-title font-extrabold leading-tight mb-3">
@@ -109,7 +101,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, activeTab, onTabChang
               </div>
             </div>
             <div className="mt-4 text-center text-xs text-gray-400">
-              <p>© 2024 Administration Numérique de la Guinée. Tous droits réservés.</p>
+              <p>© 2026 Administration Numérique de la Guinée. Tous droits réservés.</p>
             </div>
           </div>
         </div>

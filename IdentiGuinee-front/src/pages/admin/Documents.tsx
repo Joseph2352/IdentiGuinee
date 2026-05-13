@@ -23,6 +23,9 @@ const Documents: React.FC = () => {
 
   useEffect(() => {
     fetchCartes();
+    const interval = setInterval(fetchCartes, 10000); // Polling toutes les 10 secondes
+    
+    return () => clearInterval(interval);
   }, []);
 
   const openModal = (doc: any) => {
@@ -71,7 +74,7 @@ const Documents: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cartes.map((carte) => (
             <div key={carte.id} className="bg-white rounded-xl shadow-sm overflow-hidden border border-outline-variant/10 flex flex-col group hover:shadow-md transition-all">
-              <div className="tricolor-bar shrink-0"></div>
+              <div className="tricolor-bar w-full"></div>
               <div className="card-doc-gradient p-4 flex justify-between items-start text-white">
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-3xl opacity-80">badge</span>
@@ -100,7 +103,20 @@ const Documents: React.FC = () => {
                 </div>
               </div>
               <div className="p-4 bg-surface-container-low/50 border-t border-outline-variant/10">
-                <p className="text-[9px] font-mono text-blue-700 truncate mb-3 font-bold opacity-60">TX: {carte.blockchainHash || '0x...'}</p>
+                <p className="text-[9px] font-mono text-blue-700 truncate mb-3 font-bold opacity-60 flex items-center gap-1">
+                   TX: 
+                   {(() => {
+                     const tx = carte.transactions?.find((t: any) => t.type === 'CARTE_DELIVREE');
+                     if (tx?.txHash && tx.txHash.startsWith('0x') && tx.txHash.length > 40) {
+                       return (
+                         <a href={`https://sepolia.etherscan.io/tx/${tx.txHash}`} target="_blank" rel="noreferrer" className="hover:underline">
+                           {tx.txHash.substring(0, 20)}...
+                         </a>
+                       );
+                     }
+                     return <span>{carte.blockchainHash?.substring(0, 20) || '0x...'}</span>;
+                   })()}
+                </p>
                 <div className="flex gap-2 text-[11px] font-bold uppercase tracking-tighter">
                   <button 
                     onClick={() => openModal(carte)}
@@ -213,7 +229,15 @@ const Documents: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[9px] font-bold text-primary uppercase tracking-[0.2em] mb-1">Authentification Blockchain</p>
-                  <p className="text-[10px] font-mono text-outline truncate mb-1">{selectedDoc?.blockchainHash || '0x...'}</p>
+                  <p className="text-[10px] font-mono text-outline truncate mb-1">
+                    {selectedDoc?.transactions?.[0]?.txHash ? (
+                      <a href={`https://sepolia.etherscan.io/tx/${selectedDoc.transactions[0].txHash}`} target="_blank" rel="noreferrer" className="hover:underline text-primary">
+                        {selectedDoc.transactions[0].txHash}
+                      </a>
+                    ) : (
+                      selectedDoc?.blockchainHash || '0x...'
+                    )}
+                  </p>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     <span className="text-[9px] font-bold text-emerald-600 uppercase">Intégrité vérifiée</span>

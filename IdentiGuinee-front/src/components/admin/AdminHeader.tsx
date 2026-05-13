@@ -37,7 +37,7 @@ const AdminHeader: React.FC<{ title: string; onMenuToggle: () => void }> = ({ ti
               <p className="text-[9px] text-outline uppercase font-bold tracking-tighter">Super-utilisateur</p>
             </div>
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border-2 border-primary group-hover:shadow-md transition-all overflow-hidden">
-               <img src="/favicon.png" alt="Admin" className="w-full h-full object-cover" />
+               <img src="/favicon.png" alt="Admin" className="w-7 h-7 object-contain" />
             </div>
           </div>
         </div>

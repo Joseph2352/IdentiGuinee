@@ -13,6 +13,7 @@ const Login: React.FC = () => {
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loggedUser, setLoggedUser] = useState<any>(null);
 
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -22,6 +23,7 @@ const Login: React.FC = () => {
     setLoading(true);
     try {
       const response = await authService.login({ identifier: email, password });
+      setLoggedUser(response.data.user);
       login(response.data.token, response.data.user);
       
       setShowSuccess(true);
@@ -144,13 +146,19 @@ const Login: React.FC = () => {
               <span className="material-symbols-outlined text-primary text-6xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
             </div>
             <div className="space-y-2">
-              <h3 className="text-4xl font-title font-bold">Bienvenue, Citoyen</h3>
-              <p className="text-white/80">Authentification souveraine réussie.</p>
+              <h3 className="text-4xl font-title font-bold">
+                Bienvenue, {loggedUser?.role === 'ADMIN' ? 'Administrateur' : 'Citoyen'}
+              </h3>
+              <p className="text-white/80">
+                {loggedUser?.role === 'ADMIN' ? 'Authentification système réussie.' : 'Authentification souveraine réussie.'}
+              </p>
             </div>
             <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
               <div className="h-full bg-accent transition-all duration-[2000ms] ease-out" style={{ width: `${progress}%` }}></div>
             </div>
-            <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-60">Redirection vers votre espace citoyen...</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] font-bold opacity-60">
+              Redirection vers votre espace {loggedUser?.role === 'ADMIN' ? 'administration' : 'citoyen'}...
+            </p>
           </div>
         </div>
       )}

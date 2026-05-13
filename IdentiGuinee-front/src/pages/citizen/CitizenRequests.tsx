@@ -70,7 +70,17 @@ const CitizenRequests: React.FC = () => {
                 
                 <div className="flex justify-between text-[10px] uppercase font-bold text-outline-variant pt-2">
                    <span>Initiée le {req.dateSoumission ? new Date(req.dateSoumission).toLocaleDateString() : '---'}</span>
-                   <span>Blockchain: {req.blockchainTransactions?.[0]?.txHash?.substring(0, 10) || '0x...'}...</span>
+                   <span>Blockchain: {(() => {
+                     const tx = req.transactions?.find((t: any) => t.type === 'CARTE_DELIVREE');
+                     if (tx?.txHash && tx.txHash.startsWith('0x') && tx.txHash.length > 40) {
+                       return (
+                         <a href={`https://sepolia.etherscan.io/tx/${tx.txHash}`} target="_blank" rel="noreferrer" className="hover:underline">
+                           {tx.txHash.substring(0, 10)}...
+                         </a>
+                       );
+                     }
+                     return req.carte?.blockchainHash?.substring(0, 10) || (req.statut === 'DELIVREE' ? 'Ancrage...' : '0x...');
+                   })()}</span>
                 </div>
               </div>
 

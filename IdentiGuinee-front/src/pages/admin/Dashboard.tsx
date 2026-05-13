@@ -30,6 +30,40 @@ const Dashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [terminalLogs, setTerminalLogs] = useState<{time: string, text: string, type?: string}[]>([]);
+
+  // Simulation de l'activité blockchain en temps réel
+  useEffect(() => {
+    const messages = [
+      { text: "BLOCK #294,012 VALIDATED - TX_COUNT: 42", type: "info" },
+      { text: "NEW TRANSACTION INCOMING: 0x9f8...d421 [ECOWAS_CARD_DELIVERY]", type: "info" },
+      { text: "HASH MATCHED: SHA-256 INTEGRITY VERIFIED", type: "info" },
+      { text: "WARNING: MULTIPLE ATTEMPTS FROM IP 192.168.1.42 [BLOCKED BY FIREWALL]", type: "warning" },
+      { text: "BLOCK #294,013 MINTING STARTED...", type: "info" },
+      { text: "SYNCING WITH GLOBAL NODES [8/8 NODES REACHED]", type: "info" },
+      { text: "NEW IDENTITY ANCHORED: 0x4d2...a892", type: "info" },
+      { text: "CONSENSUS REACHED BY 6/8 VALIDATORS", type: "info" }
+    ];
+
+    const addLog = () => {
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      const time = new Date().toLocaleTimeString('fr-FR', { hour12: false });
+      setTerminalLogs(prev => [...prev, { ...msg, time }].slice(-8));
+    };
+
+    // Initial logs
+    const initialLogs = [];
+    for(let i = 0; i < 5; i++) {
+       const msg = messages[i % messages.length];
+       const d = new Date();
+       d.setSeconds(d.getSeconds() - (20 - i*4));
+       initialLogs.push({ ...msg, time: d.toLocaleTimeString('fr-FR', { hour12: false }) });
+    }
+    setTerminalLogs(initialLogs);
+
+    const interval = setInterval(addLog, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleUpdateStatut = async (id: string, statut: string, progression: number) => {
     try {
@@ -87,17 +121,32 @@ const Dashboard: React.FC = () => {
         setRecentRequests(requestsRes.data?.demandes || requestsRes.data || []);
       } catch (error) {
         console.error('Erreur:', error);
-      } finally {
       }
     };
+    
     fetchData();
+    const interval = setInterval(fetchData, 10000); // Polling toutes les 10 secondes
+    
+    return () => clearInterval(interval);
   }, []);
   // Chart Data
+  const getWeeklyLabels = () => {
+    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const labels = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(today.getDate() - (6 - i));
+      labels.push(days[date.getDay()]);
+    }
+    return labels;
+  };
+
   const barData = {
-    labels: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+    labels: getWeeklyLabels(),
     datasets: [{
       label: 'Documents délivrés',
-      data: [420, 580, 490, 710, 840, 320, 210],
+      data: stats?.weeklyStats || [0, 0, 0, 0, 0, 0, 0],
       backgroundColor: '#0d631b',
       borderRadius: 4,
       barThickness: 24,
@@ -326,15 +375,15 @@ const Dashboard: React.FC = () => {
           <div className="mt-6 space-y-3">
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-primary"></span> Validés</span>
-              <span className="font-bold">82%</span>
+              <span className="font-bold">{stats?.total > 0 ? Math.round((stats.delivrees / stats.total) * 100) : 0}%</span>
             </div>
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary"></span> En cours</span>
-              <span className="font-bold">12%</span>
+              <span className="font-bold">{stats?.total > 0 ? Math.round(((stats.soumises + stats.enVerification + stats.enProduction) / stats.total) * 100) : 0}%</span>
             </div>
             <div className="flex items-center justify-between text-xs">
               <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-tertiary"></span> Rejetés</span>
-              <span className="font-bold">6%</span>
+              <span className="font-bold">{stats?.total > 0 ? Math.round((stats.rejetees / stats.total) * 100) : 0}%</span>
             </div>
           </div>
         </div>
@@ -411,15 +460,13 @@ const Dashboard: React.FC = () => {
             <span className="w-3 h-3 rounded-full bg-green-500"></span>
             <h5 className="ml-4 text-xs text-white/50 uppercase tracking-widest font-bold">Activité Blockchain en temps réel</h5>
           </div>
-          <span className="text-[10px] text-green-500/50 uppercase font-bold tracking-widest">CONNECTED: NODE_GN_CONAKRY_04</span>
         </div>
-        <div className="space-y-1 overflow-hidden h-40 text-[11px] leading-relaxed">
-          <p className="text-green-500"><span className="text-white/30">[14:32:01]</span> BLOCK #294,012 VALIDATED - TX_COUNT: 42</p>
-          <p className="text-green-500"><span className="text-white/30">[14:32:05]</span> NEW TRANSACTION INCOMING: 0x9f8...d421 [ECOWAS_CARD_DELIVERY]</p>
-          <p className="text-green-500"><span className="text-white/30">[14:32:06]</span> HASH MATCHED: SHA-256 INTEGRITY VERIFIED</p>
-          <p className="text-[#fcab28]"><span className="text-white/30">[14:32:12]</span> WARNING: MULTIPLE ATTEMPTS FROM IP 192.168.1.42 [BLOCKED BY FIREWALL]</p>
-          <p className="text-green-500"><span className="text-white/30">[14:33:00]</span> BLOCK #294,013 MINTING STARTED...</p>
-          <p className="text-green-400 opacity-80"><span className="text-white/30">[14:33:15]</span> SYNCING WITH GLOBAL NODES [8/8 NODES REACHED]</p>
+        <div className="space-y-1 overflow-hidden h-40 text-[11px] leading-relaxed flex flex-col justify-end">
+          {terminalLogs.map((log, index) => (
+            <p key={index} className={`${log.type === 'warning' ? 'text-[#fcab28]' : 'text-green-500'} opacity-90`}>
+              <span className="text-white/30 mr-2">[{log.time}]</span> {log.text}
+            </p>
+          ))}
           <p className="text-green-500">_ <span className="animate-pulse inline-block w-2 h-4 bg-green-500 ml-1"></span></p>
         </div>
       </div>

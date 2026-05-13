@@ -85,11 +85,12 @@ const CitizenWallet: React.FC = () => {
                  {/* FRONT FACE (RECTO) */}
                  <div className="card-face">
                     {activeCard?.carteRectoUrl ? (
-                      <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white group-hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] transition-shadow duration-500">
+                      <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white flex flex-col group-hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] transition-shadow duration-500">
+                        <div className="tricolor-bar w-full h-1"></div>
                         <img 
                          src={`http://localhost:4000${activeCard.carteRectoUrl}`} 
                          alt="CNI Recto" 
-                         className="w-full h-full object-cover"
+                         className="w-full flex-1 object-cover"
                         />
                       </div>
                     ) : (

@@ -34,7 +34,14 @@ const CitizenDashboard: React.FC = () => {
       setShowRequestModal(true);
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+
+    const interval = setInterval(() => {
+      fetchDemandes();
+      refreshProfile();
+    }, 10000); // Polling toutes les 10 secondes
+
+    return () => clearInterval(interval);
+  }, [location.state, refreshProfile]);
 
   const pendingDemandes = demandes.filter(d => d.statut !== 'DELIVREE' && d.statut !== 'REJETEE');
   const deliveredDemandes = demandes.filter(d => d.statut === 'DELIVREE');
@@ -172,11 +179,12 @@ const CitizenDashboard: React.FC = () => {
                     {/* FRONT FACE (RECTO) */}
                     <div className="card-face">
                        {activeCard?.carteRectoUrl ? (
-                         <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white">
+                         <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white flex flex-col">
+                           <div className="tricolor-bar w-full h-1"></div>
                            <img 
                             src={`http://localhost:4000${activeCard.carteRectoUrl}`} 
                             alt="CNI Recto" 
-                            className="w-full h-full object-cover"
+                            className="w-full flex-1 object-cover"
                            />
                          </div>
                        ) : (
@@ -322,7 +330,22 @@ const CitizenDashboard: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <span className="font-mono text-[10px] text-outline font-bold bg-surface-container-low px-2 py-1 rounded">
-                      {req.blockchainTransactions?.[0]?.txHash.substring(0, 10) || 'Wait'}...
+                      {(() => {
+                        const tx = req.transactions?.find((t: any) => t.type === 'CARTE_DELIVREE');
+                        if (tx?.txHash && tx.txHash.startsWith('0x') && tx.txHash.length > 40) {
+                          return (
+                            <a 
+                              href={`https://sepolia.etherscan.io/tx/${tx.txHash}`} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="text-primary hover:underline"
+                            >
+                              {tx.txHash.substring(0, 10)}...
+                            </a>
+                          );
+                        }
+                        return (req.carte?.blockchainHash?.substring(0, 10) || (req.statut === 'DELIVREE' ? 'Ancrage...' : '---')) + (req.carte?.blockchainHash ? '...' : '');
+                      })()}
                     </span>
                   </td>
                 </tr>

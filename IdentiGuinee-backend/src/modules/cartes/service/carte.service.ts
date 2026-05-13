@@ -85,21 +85,7 @@ class CarteService {
       lieuDelivrance: 'CONAKRY',
     });
 
-    // 7. Ancrer sur la blockchain de manière asynchrone (pour ne pas bloquer la réponse)
-    // On pourrait aussi le faire de manière synchrone selon le besoin de fiabilité
-    blockchainService.certifierCarte(
-      numeroCarte,
-      nin,
-      dataHash,
-      'CONAKRY',
-      Math.floor(dateExpiration.getTime() / 1000)
-    ).then(result => {
-      console.log(`Carte ${numeroCarte} ancrée avec succès: ${result.txHash}`);
-    }).catch(err => {
-      console.error(`Échec de l'ancrage de la carte ${numeroCarte}:`, err);
-    });
-
-    // 6. Générer les images physiques
+    // 7. Générer les images physiques
     const images = await imageService.generateCardImages({
       id: carte.id,
       nom: citoyen.nom,
@@ -189,6 +175,55 @@ class CarteService {
 
     doc.end();
     return doc;
+  }
+
+  /**
+   * Ancre une carte sur la blockchain lorsqu'elle est délivrée
+   */
+  async anchorCarte(demandeId: string) {
+    const demande = await prisma.demande.findUnique({
+      where: { id: demandeId },
+      include: { carte: true, citoyen: true }
+    });
+
+    if (!demande || !demande.carte || !demande.citoyen) {
+      console.error(`Impossible d'ancrer: demande, carte ou citoyen manquant pour ${demandeId}`);
+      return;
+    }
+
+    const { carte, citoyen } = demande;
+
+    console.log(`🔗 Début de l'ancrage blockchain pour la carte ${carte.numeroCarte}...`);
+
+    try {
+      const result = await blockchainService.certifierCarte(
+        carte.numeroCarte,
+        citoyen.nin!,
+        carte.blockchainHash!,
+        'CONAKRY',
+        Math.floor(carte.dateExpiration.getTime() / 1000)
+      );
+
+      console.log(`✅ Carte ${carte.numeroCarte} ancrée avec succès: ${result.txHash}`);
+
+      await prisma.blockchainTransaction.create({
+        data: {
+          txHash: result.txHash,
+          type: 'CARTE_DELIVREE',
+          blockNumber: String(result.blockNumber),
+          carteId: carte.id,
+          demandeId: demandeId,
+          metadata: {
+            numeroCarte: carte.numeroCarte,
+            nin: citoyen.nin,
+            citoyen: `${citoyen.prenom} ${citoyen.nom}`,
+            network: 'Sepolia'
+          }
+        }
+      });
+    } catch (error) {
+      console.error(`❌ Échec de l'ancrage de la carte ${carte.numeroCarte}:`, error);
+    }
   }
 
   private generateNIN(): string {

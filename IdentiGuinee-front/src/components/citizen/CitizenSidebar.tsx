@@ -29,14 +29,12 @@ const CitizenSidebar: React.FC<SidebarProps> = ({ profile, isOpen, onClose }) =>
       fixed lg:sticky top-0 transition-transform duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
     `}>
-      {/* Tricolor Bar - Identical to Admin */}
-      <div className="tricolor-bar shrink-0"></div>
       
       {/* Logo Section */}
       <div className="px-6 py-8 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-lg shadow-sm border border-white/10">
-            <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
+          <div className="w-10 h-10 bg-white flex items-center justify-center rounded-lg shadow-sm border border-white/10 overflow-hidden">
+            <img src="/favicon.png" alt="Logo" className="w-7 h-7 object-contain" />
           </div>
           <div>
             <h1 className="font-headline font-bold text-xl leading-tight tracking-tight text-white">Mon Espace</h1>
@@ -91,17 +89,18 @@ const CitizenSidebar: React.FC<SidebarProps> = ({ profile, isOpen, onClose }) =>
           </NavLink>
         ))}
         
-        <div className="pt-6 pb-2 px-4">
-          <p className="text-[10px] uppercase tracking-widest text-white/40">Paramètres</p>
-        </div>
+      </nav>
+
+      {/* Logout at bottom */}
+      <div className="px-4 pb-4">
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-400/10 text-left font-bold transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-red-400/10 text-left font-bold transition-colors border border-red-400/10"
         >
           <span className="material-symbols-outlined">logout</span>
-          <span className="text-sm">Déconnexion</span>
+          <span className="text-sm uppercase tracking-widest">Déconnexion</span>
         </button>
-      </nav>
+      </div>
 
       {/* Footer Citoyen */}
       <div className="p-6 border-t border-white/5 bg-[#0B1121]">

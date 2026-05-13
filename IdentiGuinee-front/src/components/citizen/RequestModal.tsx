@@ -23,6 +23,7 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
   const [prefectures, setPrefectures] = useState<GeoItem[]>([]);
   const [sousPrefectures, setSousPrefectures] = useState<GeoItem[]>([]);
   const [loadingGeo, setLoadingGeo] = useState(false);
+  const [hasFileError, setHasFileError] = useState(false);
 
   const sigCanvas = React.useRef<SignatureCanvas>(null);
   const [signatureBlob, setSignatureBlob] = useState<Blob | null>(null);
@@ -173,7 +174,13 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
       onSuccess();
       onClose();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Erreur lors de la soumission');
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Erreur lors de la soumission';
+      toast.error(errorMsg);
+      // Retourner à l'étape des documents si c'est une erreur de fichier
+      if (errorMsg.toLowerCase().includes('file') || errorMsg.toLowerCase().includes('large')) {
+        setHasFileError(true);
+        setStep(4);
+      }
     } finally {
       setLoading(false);
     }
@@ -183,7 +190,6 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-on-surface/30 backdrop-blur-sm animate-fadeIn">
       <div className="bg-white/95 backdrop-blur-xl rounded-[2.5rem] w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border border-white/20">
         {/* Tricolor Accent line */}
-        <div className="tricolor-bar shrink-0"></div>
         
         {/* Header - Compact & Elegant */}
         <div className="p-6 pb-4 shrink-0">
@@ -392,7 +398,7 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
                   <p className="text-[10px] text-outline uppercase tracking-widest font-bold">Document requis : Extrait de Naissance (PDF uniquement)</p>
                </div>
                
-               <label className={`block border-2 border-dashed rounded-[2.5rem] p-10 transition-all cursor-pointer group text-center ${file ? 'border-primary bg-primary/5 shadow-inner' : 'border-outline-variant/30 bg-surface-container-low hover:border-primary hover:bg-white'}`}>
+               <label className={`block border-2 border-dashed rounded-[2.5rem] p-10 transition-all cursor-pointer group text-center ${hasFileError ? 'border-red-500 bg-red-50 shadow-inner' : file ? 'border-primary bg-primary/5 shadow-inner' : 'border-outline-variant/30 bg-surface-container-low hover:border-primary hover:bg-white'}`}>
                  <input 
                   type="file" 
                   className="hidden" 
@@ -403,7 +409,10 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
                       e.target.value = '';
                       return;
                     }
-                    if (selectedFile) setFile(selectedFile);
+                    if (selectedFile) {
+                      setFile(selectedFile);
+                      setHasFileError(false);
+                    }
                   }} 
                   accept="application/pdf" 
                  />
@@ -413,9 +422,10 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
                    </div>
                    <div className="space-y-1">
                      <p className="font-bold text-sm text-on-surface">{file ? file.name : 'Cliquez pour uploader votre PDF'}</p>
-                     <p className="text-[10px] text-outline uppercase tracking-tighter">{file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Format PDF requis (Max 5MB)'}</p>
+                     <p className="text-[10px] text-outline uppercase tracking-tighter">{file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : 'Format PDF requis (Max 50MB)'}</p>
                    </div>
-                   {file && <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-4 py-1 rounded-full animate-fadeIn">Fichier prêt</span>}
+                   {file && !hasFileError && <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-4 py-1 rounded-full animate-fadeIn">Fichier prêt</span>}
+                   {hasFileError && <span className="text-[10px] font-black text-red-600 uppercase tracking-widest bg-red-100 px-4 py-1 rounded-full animate-shake">Fichier trop lourd (Max 50MB)</span>}
                  </div>
                </label>
 

@@ -47,7 +47,7 @@ class DemandeController {
         extraitNaissanceUrl,
         signatureUrl,
       });
-      res.status(201).json({ success: true, message: 'Demande soumise et ancrée sur la blockchain', data: demande });
+      res.status(201).json({ success: true, message: 'Demande soumise avec succès. L\'ancrage blockchain sera effectué lors de la délivrance.', data: demande });
     } catch (error: any) {
       if (error.message.includes('Complétez votre profil')) return res.status(404).json({ success: false, message: error.message });
       next(error);

@@ -19,7 +19,8 @@ class DemandeRepository {
               user: { select: { email: true, telephone: true } }
             } 
           }, 
-          carte: true 
+          carte: true,
+          transactions: true
         },
         orderBy: { dateSoumission: 'desc' },
       }),
@@ -49,7 +50,10 @@ class DemandeRepository {
   async findByCitoyenId(citoyenId: string) {
     return prisma.demande.findMany({
       where: { citoyenId },
-      include: { carte: true },
+      include: { 
+        carte: true,
+        transactions: true 
+      },
       orderBy: { dateSoumission: 'desc' },
     });
   }
