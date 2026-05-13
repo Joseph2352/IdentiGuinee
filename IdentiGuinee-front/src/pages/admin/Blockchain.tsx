@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { blockchainService } from '../../services/blockchain.service';
-import { toast } from 'react-hot-toast';
+
 
 const Blockchain: React.FC = () => {
   const [logs, setLogs] = useState<{time: string, text: string}[]>([]);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { citoyenService } from '../../services/citoyen.service';
-import { toast } from 'react-hot-toast';
+
 
 const Citizens: React.FC = () => {
   const [citizens, setCitizens] = useState<any[]>([]);
