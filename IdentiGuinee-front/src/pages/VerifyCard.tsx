@@ -32,7 +32,9 @@ const VerifyCard: React.FC = () => {
     const checkIntegrity = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:4000/api/blockchain/integrity/${numeroCarte}`);
+    
+        const apiUrl = import.meta.env.VITE_API_URL;
+        const response = await axios.get(`${apiUrl}/blockchain/integrity/${numeroCarte}`);;
         setResult(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Erreur lors de la vérification');

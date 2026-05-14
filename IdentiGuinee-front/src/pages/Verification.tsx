@@ -136,7 +136,8 @@ const Verification: React.FC = () => {
     setStatus('scanning');
     try {
       // La recherche se fait STRICTEMENT via le paramètre numeroCarte comme demandé
-      const response = await verificationService.verifierCarte({ numeroCarte: identifiantToSend });
+      const numeroNettoye = identifiantToSend?.replaceAll('-', '');
+      const response = await verificationService.verifierCarte({ numeroCarte: numeroNettoye });
       setResultData(response.data);
       setStatus('authentic');
       playSuccessSound();

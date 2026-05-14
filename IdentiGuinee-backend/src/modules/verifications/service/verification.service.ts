@@ -7,8 +7,10 @@ class VerificationService {
 
     let carte;
     if (numeroCarte) {
+
+      let numeroV = numeroCarte.replace(/-/g, "");
       carte = await prisma.carteIdentite.findUnique({
-        where: { numeroCarte: numeroCarte as string },
+        where: { numeroCarte: numeroV as string },
         select: {
           id: true,
           numeroCarte: true,

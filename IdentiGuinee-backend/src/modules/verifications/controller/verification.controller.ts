@@ -19,11 +19,13 @@ class VerificationController {
       });
 
       if (!result) {
-        return res.status(404).json({ success: false, message: 'Aucune carte trouvée ou document invalide', resultat: 'INVALIDE' });
+        return res.status(404).json({ success: false, message: 'Aucune carte trouvée ou document invalide', resultat: 'INVALIDE',});
       }
 
       res.json(result);
-    } catch (error) { next(error); }
+    } catch (error) { 
+      next(error); 
+    }
   }
 
   /** Admin : historique des vérifications */
