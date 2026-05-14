@@ -62,7 +62,7 @@ const Navbar: React.FC = () => {
                 to="/login"
                 className="hidden md:inline-flex items-center bg-[#0d631b] text-white text-sm font-bold px-7 py-3 rounded-lg hover:bg-[#0a4f15] transition-all duration-150 shadow-md shadow-[#0d631b]/10"
               >
-                Connexion Citoyen
+                Connexion
               </Link>
             ) : (
               <div className="hidden md:flex items-center gap-4">
