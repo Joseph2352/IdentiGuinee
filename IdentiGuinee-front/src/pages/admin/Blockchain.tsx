@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { blockchainService } from '../../services/blockchain.service';
-import { toast } from 'react-hot-toast';
+
 
 const Blockchain: React.FC = () => {
-  const [logs, setLogs] = useState<string[]>([
-    "[SYSTEM] INITIATING SECURE CONNECTION TO GN_MAINNET...",
-    "[SYSTEM] HANDSHAKE SUCCESSFUL. NODE: CONAKRY_04",
-    "[SYNC] VALIDATING PREVIOUS BLOCKS... 100% COMPLETE",
-    "[INFO] LISTENING FOR NEW TRANSACTIONS..."
-  ]);
+  const [logs, setLogs] = useState<{time: string, text: string}[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +17,7 @@ const Blockchain: React.FC = () => {
       setTransactions(txRes.data?.transactions || []);
       setStats(statsRes.data || statsRes);
     } catch (error) {
-      toast.error('Erreur lors du chargement de la blockchain');
+      console.error('Erreur:', error);
     } finally {
       setLoading(false);
     }
@@ -30,6 +25,9 @@ const Blockchain: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    const interval = setInterval(fetchData, 10000); // Polling toutes les 10 secondes
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Simulate real-time blocks
@@ -47,10 +45,20 @@ const Blockchain: React.FC = () => {
       "[SECURITY] DISCARDING INVALID TX HASH."
     ];
 
+    // Initial logs
+    const initialLogs = [
+      { text: "[SYSTEM] INITIATING SECURE CONNECTION TO GN_MAINNET...", time: new Date(Date.now() - 10000).toISOString().substring(11, 19) },
+      { text: "[SYSTEM] HANDSHAKE SUCCESSFUL. NODE: CONAKRY_04", time: new Date(Date.now() - 8000).toISOString().substring(11, 19) },
+      { text: "[SYNC] VALIDATING PREVIOUS BLOCKS... 100% COMPLETE", time: new Date(Date.now() - 5000).toISOString().substring(11, 19) },
+      { text: "[INFO] LISTENING FOR NEW TRANSACTIONS...", time: new Date(Date.now() - 2000).toISOString().substring(11, 19) }
+    ];
+    setLogs(initialLogs);
+
     let i = 0;
     const interval = setInterval(() => {
       setLogs((prev) => {
-        const newLogs = [...prev, events[i % events.length]];
+        const time = new Date().toISOString().substring(11, 19);
+        const newLogs = [...prev, { text: events[i % events.length], time }];
         return newLogs.slice(-15); // Keep only last 15 lines
       });
       i++;
@@ -110,14 +118,14 @@ const Blockchain: React.FC = () => {
         <div className="space-y-1.5 h-[180px] overflow-hidden flex flex-col justify-end">
           {logs.map((log, index) => {
             let color = "text-green-400"; // default
-            if (log.includes("[WARNING]") || log.includes("[SECURITY]")) color = "text-error";
-            if (log.includes("[SYNC]") || log.includes("[INFO]")) color = "text-outline";
-            if (log.includes("[CONTRACT]")) color = "text-secondary hover:text-white";
+            if (log.text.includes("[WARNING]") || log.text.includes("[SECURITY]")) color = "text-error";
+            if (log.text.includes("[SYNC]") || log.text.includes("[INFO]")) color = "text-outline";
+            if (log.text.includes("[CONTRACT]")) color = "text-secondary hover:text-white";
 
             return (
               <p key={index} className={`font-mono text-xs ${color} opacity-90 transition-opacity`}>
-                <span className="text-white/30 mr-3">[{new Date().toISOString().substring(11, 19)}]</span>
-                {log}
+                <span className="text-white/30 mr-3">[{log.time}]</span>
+                {log.text}
               </p>
             );
           })}
@@ -159,9 +167,16 @@ const Blockchain: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="font-mono text-[11px] text-outline bg-surface-container-low px-2 py-1 rounded">
+                    <a 
+                      href={`https://sepolia.etherscan.io/tx/${tx.txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-[11px] text-primary hover:text-primary-container bg-primary/5 px-2 py-1 rounded border border-primary/10 transition-colors flex items-center gap-1 w-fit"
+                      title="Voir sur l'explorateur (Sepolia)"
+                    >
                       {tx.txHash.substring(0, 10)}...{tx.txHash.substring(tx.txHash.length - 10)}
-                    </span>
+                      <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                    </a>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase tracking-widest">

@@ -11,6 +11,13 @@ const Verifications: React.FC = () => {
   useEffect(() => {
     fetchStats();
     fetchHistory();
+    
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchHistory();
+    }, 10000); // Polling toutes les 10 secondes
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchStats = async () => {

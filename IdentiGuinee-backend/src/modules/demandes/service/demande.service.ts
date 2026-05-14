@@ -46,35 +46,7 @@ class DemandeService {
       });
     }
 
-    // Ancrage blockchain simulation (Demande soumise)
-    const txHash = '0x' + crypto.createHash('sha256').update(demande.id + Date.now()).digest('hex');
-    await prisma.blockchainTransaction.create({
-      data: {
-        txHash,
-        type: 'DEMANDE_SOUMISE',
-        referenceId: demande.id,
-        demandeId: demande.id,
-        blockNumber: String(Math.floor(Math.random() * 500000) + 100000),
-        metadata: { reference: demande.reference, type: demande.type, citoyenId },
-      },
-    });
-
-    // AUTOMATION: Génération immédiate de la carte
-    try {
-      await carteService.generateForCitoyen(citoyenId, demande.id);
-      
-      // Mise à jour de la demande en DELIVREE
-      const updatedDemande = await demandeRepository.update(demande.id, {
-        statut: 'DELIVREE',
-        progression: 100,
-        dateTraitement: new Date()
-      });
-      
-      return updatedDemande;
-    } catch (error) {
-      console.error(`❌ Erreur lors de la génération automatique de la carte :`, error);
-      return demande;
-    }
+    return demande;
   }
 
   async createFromUser(userId: string, data: { type: string; extraitNaissanceUrl?: string; extraitNaissanceId?: string; signatureUrl?: string }) {
@@ -101,6 +73,13 @@ class DemandeService {
         // On pourrait ici repasser le statut en erreur ou logger plus finement
       }
     }
+    // Si on passe en DELIVREE, on ancre sur la blockchain
+    if (statut === 'DELIVREE') {
+      // On lance l'ancrage de manière asynchrone pour ne pas ralentir l'admin
+      carteService.anchorCarte(demande.id).catch(err => {
+        console.error(`Erreur d'ancrage différé:`, err);
+      });
+    }
 
     return demande;
   }
@@ -117,7 +96,42 @@ class DemandeService {
 
     const tauxDelivrance = total > 0 ? Math.round((delivrees / total) * 100) : 0;
     const enAttente = soumises + enVerification + enProduction;
-    const fraudes = rejetees; // Simulation: les rejets sont considérés comme des fraudes détectées
+    const fraudes = rejetees;
+
+    // Récupérer les stats des 7 derniers jours pour le graphique
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const dailyDeliveries = await prisma.demande.groupBy({
+      by: ['dateTraitement'],
+      _count: { id: true },
+      where: {
+        statut: 'DELIVREE',
+        dateTraitement: {
+          gte: sevenDaysAgo
+        }
+      },
+    });
+
+    // Formater les données pour le frontend (Lundi, Mardi, etc.)
+    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const weeklyStats = new Array(7).fill(0);
+    const today = new Date();
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(today.getDate() - (6 - i));
+      const dayName = days[date.getDay()];
+      
+      const count = dailyDeliveries.reduce((acc, curr) => {
+        if (curr.dateTraitement && new Date(curr.dateTraitement).toDateString() === date.toDateString()) {
+          return acc + curr._count.id;
+        }
+        return acc;
+      }, 0);
+      
+      weeklyStats[i] = count;
+    }
 
     return { 
       total, 
@@ -128,7 +142,8 @@ class DemandeService {
       rejetees,
       tauxDelivrance,
       enAttente,
-      fraudes
+      fraudes,
+      weeklyStats // Ajout des données hebdo [val1, val2, ..., val7]
     };
   }
 }

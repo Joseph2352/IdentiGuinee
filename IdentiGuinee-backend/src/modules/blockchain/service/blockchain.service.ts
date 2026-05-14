@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { NAISSANCE_CHAIN_ABI } from '../constants/abi.js';
+import prisma from '../../../common/config/prisma.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -112,10 +113,9 @@ class BlockchainService {
    * Obtient le nombre total d'actes ancrés
    */
   async getTotalActes() {
-    if (!this.contract) return 0;
     try {
-       const total = await this.contract.totalActes();
-       return Number(total);
+       const total = await prisma.blockchainTransaction.count();
+       return total;
     } catch (error) {
       return 0;
     }

@@ -173,7 +173,7 @@ const Verification: React.FC = () => {
       <div className="flex flex-col items-center gap-12">
         {/* Verification Interface - Centered */}
         <div className="w-full max-w-2xl space-y-8">
-          <Reveal direction="up" distance={50}>
+          <Reveal width="100%" direction="up" distance={50}>
             <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-surface-variant">
               <div className="flex border-b border-surface-variant">
                 <button 
@@ -305,9 +305,9 @@ const Verification: React.FC = () => {
 
         {/* Results Area - Below Scanner */}
         {status !== 'idle' && (
-          <div ref={resultRef} className="w-full max-w-3xl space-y-8 animate-fadeInUp">
+          <div ref={resultRef} className="w-full max-w-2xl space-y-8 animate-fadeInUp">
             {status === 'authentic' && (
-              <Reveal direction="up" distance={50}>
+              <Reveal width="100%" direction="up" distance={50}>
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border-t-[8px] border-brand-green">
                   <div className="bg-green-50/50 p-6 flex flex-col md:flex-row items-center justify-between border-b border-green-100 gap-4">
                     <div className="flex items-center gap-4">
@@ -426,7 +426,7 @@ const Verification: React.FC = () => {
             )}
 
             {status === 'invalid' && (
-              <Reveal direction="up" distance={30}>
+              <Reveal width="100%" direction="up" distance={30}>
                 <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-10 flex flex-col items-center text-center">
                   <div className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center text-white text-4xl mb-6 shadow-xl shadow-red-200">
                     <span className="material-symbols-outlined">warning</span>

@@ -22,10 +22,13 @@ const Requests: React.FC = () => {
         setStats(statsRes.data || statsRes);
       } catch (error) {
         console.error('Erreur:', error);
-      } finally {
       }
     };
+    
     fetchData();
+    const interval = setInterval(fetchData, 10000); // Polling toutes les 10 secondes
+    
+    return () => clearInterval(interval);
   }, []);
 
   const handleUpdateStatut = async (id: string, statut: string, progression: number) => {
@@ -262,9 +265,6 @@ const Requests: React.FC = () => {
           <option>Délivré</option>
           <option>En attente</option>
         </select>
-        <button className="bg-primary text-white px-4 h-10 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-colors">
-          <span className="material-symbols-outlined text-lg">add_circle</span> Nouvelle demande
-        </button>
       </div>
 
       <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">

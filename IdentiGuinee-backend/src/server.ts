@@ -46,7 +46,8 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(morgan('dev'));
 
 // 2. Specialized static file serving (Bypass Direct PDF Access)
@@ -107,25 +108,26 @@ async function boot() {
   // Auto-seed Data
   await runSeed();
 
-  // Auto-create Admin User
+  // Auto-create/Update Admin User
   if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
-    const exists = await prisma.user.findUnique({
-      where: { telephone: '+224000000000' },
+    const passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
+    
+    await prisma.user.upsert({
+      where: { email: process.env.ADMIN_EMAIL },
+      update: {
+        telephone: '+224627377818',
+        passwordHash,
+        role: 'ADMIN',
+      },
+      create: {
+        email: process.env.ADMIN_EMAIL,
+        telephone: '+224627377818',
+        passwordHash,
+        role: 'ADMIN',
+        isVerified: true,
+      },
     });
-
-    if (!exists) {
-      const passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
-      await prisma.user.create({
-        data: {
-          email: process.env.ADMIN_EMAIL,
-          telephone: '+224000000000',
-          passwordHash,
-          role: 'ADMIN',
-          isVerified: true,
-        },
-      });
-      console.log('✅ Utilisateur admin par défaut créé:', process.env.ADMIN_EMAIL);
-    }
+    console.log('✅ Synchronisation de l\'admin terminée:', process.env.ADMIN_EMAIL);
   }
 
   app.listen(port, () => {

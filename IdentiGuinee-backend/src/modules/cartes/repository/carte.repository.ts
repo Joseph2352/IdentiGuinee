@@ -15,7 +15,8 @@ class CarteRepository {
               sexe: true, 
               photoUrl: true 
             } 
-          } 
+          },
+          transactions: true
         },
         orderBy: { createdAt: 'desc' },
       }),

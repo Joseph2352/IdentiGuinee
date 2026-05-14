@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { citoyenService } from '../../services/citoyen.service';
-import { toast } from 'react-hot-toast';
+
 
 const Citizens: React.FC = () => {
   const [citizens, setCitizens] = useState<any[]>([]);
@@ -14,12 +14,16 @@ const Citizens: React.FC = () => {
         setCitizens(res.data?.citoyens || []);
         setTotal(res.data?.total || 0);
       } catch (error) {
-        toast.error('Erreur lors du chargement des citoyens');
+        console.error('Erreur:', error);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchCitizens();
+    const interval = setInterval(fetchCitizens, 10000); // Polling toutes les 10 secondes
+    
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -39,33 +43,33 @@ const Citizens: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
-        <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs uppercase font-bold tracking-widest text-outline">Total Citoyens Enregistrés</span>
-            <span className="material-symbols-outlined text-primary/40 text-2xl">groups</span>
+        <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/10">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-outline">Total Citoyens Enregistrés</span>
+            <span className="material-symbols-outlined text-primary/40 text-xl">groups</span>
           </div>
-          <h3 className="text-3xl font-headline font-bold text-on-surface">{total.toLocaleString()}</h3>
-          <p className="text-[10px] text-green-600 font-bold mt-2 flex items-center gap-1">
-            <span className="material-symbols-outlined text-[12px]">trending_up</span> Registre à jour
+          <h3 className="text-xl font-headline font-bold text-on-surface">{total.toLocaleString()}</h3>
+          <p className="text-[9px] text-green-600 font-bold mt-1 flex items-center gap-1">
+            <span className="material-symbols-outlined text-[10px]">trending_up</span> Registre à jour
           </p>
         </div>
-        <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs uppercase font-bold tracking-widest text-outline">Validation Automatisée</span>
-            <span className="material-symbols-outlined text-primary/40 text-2xl">auto_awesome</span>
+        <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/10">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-outline">Validation Automatisée</span>
+            <span className="material-symbols-outlined text-primary/40 text-xl">auto_awesome</span>
           </div>
-          <h3 className="text-3xl font-headline font-bold text-on-surface">98.5%</h3>
-          <p className="text-[10px] text-primary font-bold mt-2 flex items-center gap-1">
-            <span className="material-symbols-outlined text-[12px]">security</span> Sans intervention humaine
+          <h3 className="text-xl font-headline font-bold text-on-surface">98.5%</h3>
+          <p className="text-[9px] text-primary font-bold mt-1 flex items-center gap-1">
+            <span className="material-symbols-outlined text-[10px]">security</span> Sans intervention humaine
           </p>
         </div>
-        <div className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10 border-l-4 border-l-error">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs uppercase font-bold tracking-widest text-outline">Anomalies AFIS / Fraudes</span>
-            <span className="material-symbols-outlined text-error/40 text-2xl">warning</span>
+        <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/10 border-l-4 border-l-error">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-outline">Anomalies AFIS / Fraudes</span>
+            <span className="material-symbols-outlined text-error/40 text-xl">warning</span>
           </div>
-          <h3 className="text-3xl font-headline font-bold text-on-surface">142</h3>
-          <p className="text-[10px] text-error font-bold mt-2 flex items-center gap-1">
+          <h3 className="text-xl font-headline font-bold text-on-surface">142</h3>
+          <p className="text-[9px] text-error font-bold mt-1 flex items-center gap-1">
             Bloqués en quarantaine système
           </p>
         </div>
@@ -114,8 +118,12 @@ const Citizens: React.FC = () => {
                         {citizen.prenom[0]}{citizen.nom[0]}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-on-surface">{citizen.prenom} {citizen.nom}</p>
-                        <p className="text-[10px] text-outline mt-0.5">Né(e) le {new Date(citizen.dateNaissance).toLocaleDateString()}</p>
+                        <p className="text-sm font-bold text-on-surface">
+                          {citizen.prenom} {citizen.nom} 
+                          <span className="text-[10px] text-outline font-normal ml-2 italic">
+                            • Né(e) le {new Date(citizen.dateNaissance).toLocaleDateString()}
+                          </span>
+                        </p>
                       </div>
                     </div>
                   </td>
@@ -132,10 +140,12 @@ const Citizens: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <p className={`font-mono text-[10px] truncate max-w-[120px] text-green-600`}>
-                      {citizen.signatureUrl ? 'Certifié Blockchain' : 'Ancrage en cours'}
+                    <p className={`font-mono text-[10px] text-green-600 font-bold`}>
+                      {citizen.signatureUrl ? 'Certifié' : 'En attente'}
+                      <span className="text-outline ml-2 font-normal opacity-70">
+                        ({new Date(citizen.createdAt).toLocaleDateString()})
+                      </span>
                     </p>
-                    <p className="text-[9px] text-outline mt-0.5 uppercase tracking-wide">{new Date(citizen.createdAt).toLocaleDateString()}</p>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button className="text-primary hover:underline text-xs font-bold px-3 py-1.5 rounded hover:bg-primary/5 transition-colors">Consulter Profil</button>
@@ -149,21 +159,23 @@ const Citizens: React.FC = () => {
         </div>
         
         {/* Pagination Simplifiée */}
-        <div className="bg-surface-container-lowest px-6 py-4 border-t border-outline-variant/10 flex justify-between items-center text-xs text-outline font-medium">
-          <p>Affichage de 1 à 8 sur 3 492 041 citoyens</p>
-          <div className="flex gap-2">
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/20 hover:bg-surface-container-low disabled:opacity-50" disabled>
-              <span className="material-symbols-outlined text-sm">chevron_left</span>
-            </button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-primary/20 bg-primary/5 text-primary font-bold">1</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/20 hover:bg-surface-container-low">2</button>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/20 hover:bg-surface-container-low">3</button>
-            <span className="w-8 h-8 flex items-center justify-center">...</span>
-            <button className="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/20 hover:bg-surface-container-low">
-              <span className="material-symbols-outlined text-sm">chevron_right</span>
-            </button>
+        {total > 20 && (
+          <div className="bg-surface-container-lowest px-6 py-4 border-t border-outline-variant/10 flex justify-between items-center text-xs text-outline font-medium">
+            <p>Affichage de {citizens.length} sur {total.toLocaleString()} citoyens</p>
+            <div className="flex gap-2">
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/20 hover:bg-surface-container-low disabled:opacity-50" disabled>
+                <span className="material-symbols-outlined text-sm">chevron_left</span>
+              </button>
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-primary/20 bg-primary/5 text-primary font-bold">1</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/20 hover:bg-surface-container-low">2</button>
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/20 hover:bg-surface-container-low">3</button>
+              <span className="w-8 h-8 flex items-center justify-center">...</span>
+              <button className="w-8 h-8 flex items-center justify-center rounded border border-outline-variant/20 hover:bg-surface-container-low">
+                <span className="material-symbols-outlined text-sm">chevron_right</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

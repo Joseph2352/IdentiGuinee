@@ -13,7 +13,7 @@ import Documents from './pages/admin/Documents';
 import Verifications from './pages/admin/Verifications';
 import Citizens from './pages/admin/Citizens';
 import Blockchain from './pages/admin/Blockchain';
-import Alerts from './pages/admin/Alerts';
+
 import Settings from './pages/admin/Settings';
 import CitizenLayout from './pages/citizen/CitizenLayout';
 import CitizenDashboard from './pages/citizen/CitizenDashboard';
@@ -49,7 +49,7 @@ function App() {
             <Route path="verifications" element={<Verifications />} />
             <Route path="citizens" element={<Citizens />} />
             <Route path="blockchain" element={<Blockchain />} />
-            <Route path="alerts" element={<Alerts />} />
+
             <Route path="settings" element={<Settings />} />
           </Route>
 
