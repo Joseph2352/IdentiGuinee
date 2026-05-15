@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../lib/axios';
 import { demandeService } from '../../services/demande.service';
 import { toast } from 'react-hot-toast';
 import { TableSkeleton } from '../../components/common/TableSkeleton';
@@ -111,7 +112,7 @@ const Requests: React.FC = () => {
                       <div className="text-center">
                          <div className="w-32 h-32 rounded-3xl overflow-hidden mx-auto border-4 border-white shadow-lg ring-1 ring-outline-variant/20">
                             <img 
-                              src={selectedRequest.citoyen.photoUrl ? `http://localhost:4000${selectedRequest.citoyen.photoUrl}` : `https://ui-avatars.com/api/?name=${selectedRequest.citoyen.prenom}+${selectedRequest.citoyen.nom}&background=0d631b&color=fff`} 
+                              src={selectedRequest.citoyen.photoUrl ? `${API_BASE_URL}${selectedRequest.citoyen.photoUrl}` : `https://ui-avatars.com/api/?name=${selectedRequest.citoyen.prenom}+${selectedRequest.citoyen.nom}&background=0d631b&color=fff`} 
                               className="w-full h-full object-cover" 
                               alt="Profil" 
                             />

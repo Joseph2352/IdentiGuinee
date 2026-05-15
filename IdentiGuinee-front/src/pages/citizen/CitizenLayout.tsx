@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { API_BASE_URL } from '../../lib/axios';
 import CitizenSidebar from '../../components/citizen/CitizenSidebar';
 import { citoyenService } from '../../services/citoyen.service';
 
@@ -100,7 +101,7 @@ const CitizenLayout: React.FC = () => {
               </div>
               <div className="w-10 h-10 bg-surface-container-low rounded-full flex items-center justify-center border-2 border-white shadow-sm overflow-hidden group-hover:border-primary transition-colors">
                   <img 
-                  src={profile?.photoUrl ? `http://localhost:4000${profile.photoUrl}` : `https://ui-avatars.com/api/?name=${profile?.prenom || 'N'}+${profile?.nom || 'P'}&background=e2e8f0&color=94a3b8`} 
+                  src={profile?.photoUrl ? `${API_BASE_URL}${profile.photoUrl}` : `https://ui-avatars.com/api/?name=${profile?.prenom || 'N'}+${profile?.nom || 'P'}&background=e2e8f0&color=94a3b8`} 
                   alt="Profil" 
                   className="w-full h-full object-cover" 
                   onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${profile?.prenom || 'N'}+${profile?.nom || 'P'}&background=e2e8f0&color=94a3b8` }}

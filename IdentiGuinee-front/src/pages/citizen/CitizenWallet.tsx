@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import api from '../../lib/axios';
+import api, { API_BASE_URL } from '../../lib/axios';
 import { citoyenService } from '../../services/citoyen.service';
 import { Skeleton } from '../../components/common/Skeleton';
 
@@ -98,7 +98,7 @@ const CitizenWallet: React.FC = () => {
                       <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white flex flex-col group-hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] transition-shadow duration-500">
                         <div className="tricolor-bar w-full h-1"></div>
                         <img 
-                         src={`http://localhost:4000${activeCard.carteRectoUrl}`} 
+                         src={`${API_BASE_URL}${activeCard.carteRectoUrl}`} 
                          alt="CNI Recto" 
                          className="w-full flex-1 object-cover"
                         />
@@ -115,7 +115,7 @@ const CitizenWallet: React.FC = () => {
                     {activeCard?.carteVersoUrl ? (
                       <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white group-hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] transition-shadow duration-500">
                         <img 
-                         src={`http://localhost:4000${activeCard.carteVersoUrl}`} 
+                         src={`${API_BASE_URL}${activeCard.carteVersoUrl}`} 
                          alt="CNI Verso" 
                          className="w-full h-full object-cover"
                         />

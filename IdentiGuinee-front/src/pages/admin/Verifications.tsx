@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { API_BASE_URL } from '../../lib/axios';
 import { verificationService } from '../../services/verification.service';
 import { Skeleton } from '../../components/common/Skeleton';
 import { TableSkeleton } from '../../components/common/TableSkeleton';
@@ -401,7 +402,7 @@ const Verifications: React.FC = () => {
                               {resultData?.carteRectoUrl ? (
                                 <div className="w-full h-full rounded-xl overflow-hidden bg-white">
                                   <img 
-                                   src={`http://localhost:4000${resultData.carteRectoUrl}`} 
+                                   src={`${API_BASE_URL}${resultData.carteRectoUrl}`} 
                                    alt="CNI Recto Authentifiée" 
                                    className="w-full h-full object-cover"
                                   />
@@ -439,7 +440,7 @@ const Verifications: React.FC = () => {
                               {resultData?.carteVersoUrl ? (
                                 <div className="w-full h-full rounded-xl overflow-hidden bg-white">
                                   <img 
-                                   src={`http://localhost:4000${resultData.carteVersoUrl}`} 
+                                   src={`${API_BASE_URL}${resultData.carteVersoUrl}`} 
                                    alt="CNI Verso Sécurisée" 
                                    className="w-full h-full object-cover"
                                   />

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 import { ShieldCheck, ShieldAlert, BadgeCheck, FileText, Globe, Clock, ArrowLeft } from 'lucide-react';
 
 interface VerificationResult {
@@ -32,7 +33,7 @@ const VerifyCard: React.FC = () => {
     const checkIntegrity = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:4000/api/blockchain/integrity/${numeroCarte}`);
+        const response = await axios.get(`${API_URL}/blockchain/integrity/${numeroCarte}`);
         setResult(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Erreur lors de la vérification');

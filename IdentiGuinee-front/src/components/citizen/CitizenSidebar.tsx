@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../lib/axios';
 import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
@@ -59,7 +60,7 @@ const CitizenSidebar: React.FC<SidebarProps> = ({ profile, isOpen, onClose }) =>
           </div>
           <img 
             className="w-10 h-10 rounded-full object-cover border-2 border-primary shadow-sm" 
-            src={profile?.photoUrl ? `http://localhost:4000${profile.photoUrl}` : `https://ui-avatars.com/api/?name=${profile?.prenom || 'N'}+${profile?.nom || 'P'}&background=0d631b&color=fff`} 
+            src={profile?.photoUrl ? `${API_BASE_URL}${profile.photoUrl}` : `https://ui-avatars.com/api/?name=${profile?.prenom || 'N'}+${profile?.nom || 'P'}&background=0d631b&color=fff`} 
             onError={(e) => { e.currentTarget.src = `https://ui-avatars.com/api/?name=${profile?.prenom || 'N'}+${profile?.nom || 'P'}&background=0d631b&color=fff` }}
             alt="Profil" 
           />

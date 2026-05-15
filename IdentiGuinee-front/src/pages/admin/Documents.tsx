@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../lib/axios';
 import { carteService } from '../../services/carte.service';
 import { toast } from 'react-hot-toast';
 import { Skeleton } from '../../components/common/Skeleton';
@@ -226,7 +227,7 @@ const Documents: React.FC = () => {
               <div className="space-y-4">
                 <div className="aspect-[1.58/1] bg-surface-container-low rounded-xl border border-outline-variant/20 overflow-hidden shadow-sm group">
                   {selectedDoc?.carteRectoUrl ? (
-                    <img src={`http://localhost:4000${selectedDoc.carteRectoUrl}`} alt="Carte Recto" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src={`${API_BASE_URL}${selectedDoc.carteRectoUrl}`} alt="Carte Recto" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-outline/30">
                       <span className="material-symbols-outlined text-4xl">badge</span>

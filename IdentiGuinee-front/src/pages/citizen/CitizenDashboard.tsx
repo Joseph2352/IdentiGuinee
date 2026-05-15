@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../lib/axios';
 import { useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { demandeService } from '../../services/demande.service';
 import RequestModal from '../../components/citizen/RequestModal';
@@ -198,12 +199,12 @@ const CitizenDashboard: React.FC = () => {
                          <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white flex flex-col">
                            <div className="tricolor-bar w-full h-1"></div>
                            <img 
-                            src={`http://localhost:4000${activeCard.carteRectoUrl}`} 
-                            alt="CNI Recto" 
-                            className="w-full flex-1 object-cover"
-                           />
-                         </div>
-                       ) : (
+                             src={`${API_BASE_URL}${activeCard.carteRectoUrl}`} 
+                             alt="CNI Recto" 
+                             className="w-full flex-1 object-cover"
+                            />
+                          </div>
+                        ) : (
                          /* FALLBACK RÉACT DESIGN */
                          <div className="w-full h-full relative rounded-2xl overflow-hidden bg-white border border-outline-variant/10">
                             <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#ce1126] via-[#fcd116] to-[#006747]"></div>
@@ -236,12 +237,12 @@ const CitizenDashboard: React.FC = () => {
                        {activeCard?.carteVersoUrl ? (
                          <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white">
                            <img 
-                            src={`http://localhost:4000${activeCard.carteVersoUrl}`} 
-                            alt="CNI Verso" 
-                            className="w-full h-full object-cover"
-                           />
-                         </div>
-                       ) : (
+                             src={`${API_BASE_URL}${activeCard.carteVersoUrl}`} 
+                             alt="CNI Verso" 
+                             className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
                          <div className="w-full h-full bg-slate-50 border-2 border-dashed border-outline-variant/20 rounded-2xl flex items-center justify-center">
                             <p className="text-[10px] text-outline font-bold uppercase tracking-widest">Verso non généré</p>
                          </div>
@@ -269,10 +270,10 @@ const CitizenDashboard: React.FC = () => {
             
             <div className="bg-white p-6 rounded-3xl shadow-[0_0_60px_rgba(16,185,129,0.2)] transition-all duration-500 border-4 border-emerald-500/10">
               <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(activeCard?.qrCodeData || `http://localhost:5172/verify-card/${activeCard?.numeroCarte}`)}`} 
-                alt="QR Verification" 
-                className="w-full max-w-[240px] aspect-square rounded-xl"
-              />
+                 src={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(activeCard?.qrCodeData || `${window.location.origin}/verify-card/${activeCard?.numeroCarte}`)}`} 
+                 alt="QR Verification" 
+                 className="w-full max-w-[240px] aspect-square rounded-xl"
+               />
             </div>
 
             <p className="mt-10 text-[10px] text-white/20 font-bold uppercase tracking-[0.4em]">

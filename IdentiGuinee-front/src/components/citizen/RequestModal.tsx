@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
+import { API_BASE_URL } from '../../lib/axios';
 import { citoyenService } from '../../services/citoyen.service';
 import { demandeService } from '../../services/demande.service';
 import { geoService, type GeoItem } from '../../services/geo.service';
@@ -458,7 +459,7 @@ const RequestModal: React.FC<RequestModalProps> = ({ isOpen, onClose, profile, o
                  <div className="bg-white border border-outline-variant/30 p-4 rounded-3xl shadow-sm text-center">
                     <p className="text-[9px] font-black text-outline uppercase mb-2 tracking-widest">Photo Choisie</p>
                     <div className="w-12 h-12 rounded-full overflow-hidden mx-auto border-2 border-primary/20">
-                      <img src={photoPreview || (profile?.photoUrl ? `http://localhost:4000${profile.photoUrl}` : undefined)} alt="Profil" className="w-full h-full object-cover" />
+                      <img src={photoPreview || (profile?.photoUrl ? `${API_BASE_URL}${profile.photoUrl}` : undefined)} alt="Profil" className="w-full h-full object-cover" />
                     </div>
                     <p className="text-[10px] text-primary font-mono mt-1 font-bold bg-primary/5 px-2 py-0.5 rounded inline-block">NIN: {profile?.nin?.substring(0, 12) || 'GN-AUTH'}</p>
                  </div>

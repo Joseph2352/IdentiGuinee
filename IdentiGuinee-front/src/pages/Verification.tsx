@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { API_BASE_URL } from '../lib/axios';
 import { toast } from 'react-hot-toast';
 import { Html5Qrcode } from 'html5-qrcode';
 import Reveal from '../components/animations/Reveal';
@@ -359,7 +360,7 @@ const Verification: React.FC = () => {
                               {resultData?.carteRectoUrl ? (
                                 <div className="w-full h-full rounded-xl overflow-hidden bg-white">
                                   <img 
-                                   src={`http://localhost:4000${resultData.carteRectoUrl}`} 
+                                   src={`${API_BASE_URL}${resultData.carteRectoUrl}`} 
                                    alt="CNI Recto Authentifiée" 
                                    className="w-full h-full object-cover"
                                   />
@@ -398,7 +399,7 @@ const Verification: React.FC = () => {
                               {resultData?.carteVersoUrl ? (
                                 <div className="w-full h-full rounded-xl overflow-hidden bg-white">
                                   <img 
-                                   src={`http://localhost:4000${resultData.carteVersoUrl}`} 
+                                   src={`${API_BASE_URL}${resultData.carteVersoUrl}`} 
                                    alt="CNI Verso Sécurisée" 
                                    className="w-full h-full object-cover"
                                   />
