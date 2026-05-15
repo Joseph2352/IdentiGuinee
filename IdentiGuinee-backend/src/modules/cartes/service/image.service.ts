@@ -106,14 +106,18 @@ class ImageService {
           .resize(340, 425, { fit: 'cover' })
           .toBuffer();
         layers.push({ input: photoBuffer, top: 290, left: 85 });
-
-        // Ajouter la petite photo à droite (Ghost image)
-        const ghostPhotoBuffer = await sharp(fullPhotoPath)
-          .resize(140, 140, { fit: 'cover' })
-          .composite([{ input: Buffer.from([255, 255, 255, 128]), raw: { width: 1, height: 1, channels: 4 }, tile: true, blend: 'dest-in' }]) // 50% opacity
-          .toBuffer();
-        layers.push({ input: ghostPhotoBuffer, top: 655, left: 1160 });
       }
+    }
+
+    // Ajouter le QR code à droite à la place de l'ancienne "ghost image"
+    if (data.qrData) {
+      const qrCodeBuffer = await QRCode.toBuffer(data.qrData, {
+        type: 'png',
+        width: 140,
+        margin: 1,
+        color: { dark: '#000000', light: '#ffffff' }
+      });
+      layers.push({ input: qrCodeBuffer, top: 655, left: 1160 });
     }
 
     // 3. Ajouter la signature

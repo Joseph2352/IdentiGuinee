@@ -1,5 +1,4 @@
 node_modules
-.env
 uploads/
 
 # Keep environment variables out of version control

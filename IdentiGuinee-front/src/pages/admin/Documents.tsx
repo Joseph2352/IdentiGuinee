@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { carteService } from '../../services/carte.service';
 import { toast } from 'react-hot-toast';
+import { Skeleton } from '../../components/common/Skeleton';
+import { TableSkeleton } from '../../components/common/TableSkeleton';
+
 
 const Documents: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -61,10 +64,40 @@ const Documents: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm font-bold text-primary animate-pulse">Chargement du registre...</p>
-        </div>
+        viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 p-4 flex flex-col h-[280px]">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-3"><Skeleton className="w-8 h-8" /><div className="space-y-2"><Skeleton className="h-3 w-16" /><Skeleton className="h-4 w-24" /></div></div>
+                  <Skeleton className="h-6 w-16 rounded" />
+                </div>
+                <div className="flex items-center gap-4 mb-6">
+                  <Skeleton className="w-12 h-12 rounded-full" />
+                  <div className="space-y-2"><Skeleton className="h-4 w-32" /><Skeleton className="h-3 w-20" /></div>
+                </div>
+                <Skeleton className="h-12 w-full mt-auto rounded" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+            <table className="w-full">
+               <thead className="bg-surface-container-low text-[10px] uppercase tracking-widest text-outline font-bold">
+                 <tr>
+                   <th className="px-6 py-4">NIN</th>
+                   <th className="px-6 py-4">Titulaire</th>
+                   <th className="px-6 py-4">Date Délivrance</th>
+                   <th className="px-6 py-4">Lieu</th>
+                   <th className="px-6 py-4 text-right">Actions</th>
+                 </tr>
+               </thead>
+               <tbody className="divide-y divide-outline-variant/10">
+                 <TableSkeleton columns={5} rows={6} />
+               </tbody>
+            </table>
+          </div>
+        )
       ) : cartes.length === 0 ? (
         <div className="text-center py-20 bg-surface-container-lowest rounded-xl border border-dashed border-outline-variant/30">
           <span className="material-symbols-outlined text-6xl text-outline/20">folder_open</span>

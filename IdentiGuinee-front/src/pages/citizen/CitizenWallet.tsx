@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../../lib/axios';
 import { citoyenService } from '../../services/citoyen.service';
+import { Skeleton } from '../../components/common/Skeleton';
 
 const CitizenWallet: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -50,8 +51,17 @@ const CitizenWallet: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="space-y-10 max-w-5xl mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 border-b border-surface-variant/10 pb-10">
+          <div>
+             <Skeleton className="h-10 w-64 mb-4" />
+             <Skeleton className="h-4 w-96" />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <Skeleton className="h-[400px] w-full rounded-3xl" />
+          <Skeleton className="h-[400px] w-full rounded-3xl hidden md:block" />
+        </div>
       </div>
     );
   }

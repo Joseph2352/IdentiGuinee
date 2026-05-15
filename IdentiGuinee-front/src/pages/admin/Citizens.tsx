@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { citoyenService } from '../../services/citoyen.service';
+import { TableSkeleton } from '../../components/common/TableSkeleton';
 
 
 const Citizens: React.FC = () => {
@@ -110,50 +111,54 @@ const Citizens: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
-              {citizens.map((citizen) => (
-                <tr key={citizen.id} className="hover:bg-surface-container-low transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs bg-primary/10 text-primary`}>
-                        {citizen.prenom[0]}{citizen.nom[0]}
+              {loading ? (
+                <TableSkeleton columns={5} />
+              ) : citizens.length === 0 ? (
+                <tr><td colSpan={5} className="py-10 text-center text-outline italic">Aucun citoyen trouvé</td></tr>
+              ) : (
+                citizens.map((citizen) => (
+                  <tr key={citizen.id} className="hover:bg-surface-container-low transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs bg-primary/10 text-primary`}>
+                          {citizen.prenom[0]}{citizen.nom[0]}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-on-surface">
+                            {citizen.prenom} {citizen.nom} 
+                            <span className="text-[10px] text-outline font-normal ml-2 italic">
+                              • Né(e) le {new Date(citizen.dateNaissance).toLocaleDateString()}
+                            </span>
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-on-surface">
-                          {citizen.prenom} {citizen.nom} 
-                          <span className="text-[10px] text-outline font-normal ml-2 italic">
-                            • Né(e) le {new Date(citizen.dateNaissance).toLocaleDateString()}
-                          </span>
-                        </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-mono text-xs font-bold text-primary tracking-tighter bg-primary/5 px-2 py-1 rounded">
+                        {citizen.nin || '---'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5">
+                        <span className="bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[12px]">verified</span> Actif
+                        </span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-mono text-xs font-bold text-primary tracking-tighter bg-primary/5 px-2 py-1 rounded">
-                      {citizen.nin || '---'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-1.5">
-                      <span className="bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[12px]">verified</span> Actif
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <p className={`font-mono text-[10px] text-green-600 font-bold`}>
-                      {citizen.signatureUrl ? 'Certifié' : 'En attente'}
-                      <span className="text-outline ml-2 font-normal opacity-70">
-                        ({new Date(citizen.createdAt).toLocaleDateString()})
-                      </span>
-                    </p>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="text-primary hover:underline text-xs font-bold px-3 py-1.5 rounded hover:bg-primary/5 transition-colors">Consulter Profil</button>
-                  </td>
-                </tr>
-              ))}
-              {loading && <tr><td colSpan={5} className="py-10 text-center text-outline italic">Chargement...</td></tr>}
-              {!loading && citizens.length === 0 && <tr><td colSpan={5} className="py-10 text-center text-outline italic">Aucun citoyen trouvé</td></tr>}
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className={`font-mono text-[10px] text-green-600 font-bold`}>
+                        {citizen.signatureUrl ? 'Certifié' : 'En attente'}
+                        <span className="text-outline ml-2 font-normal opacity-70">
+                          ({new Date(citizen.createdAt).toLocaleDateString()})
+                        </span>
+                      </p>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button className="text-primary hover:underline text-xs font-bold px-3 py-1.5 rounded hover:bg-primary/5 transition-colors">Consulter Profil</button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

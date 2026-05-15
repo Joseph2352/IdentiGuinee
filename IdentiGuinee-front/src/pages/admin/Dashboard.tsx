@@ -12,6 +12,9 @@ import {
   ArcElement,
 } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
+import { DashboardCardsSkeleton } from '../../components/common/DashboardCardsSkeleton';
+import { Skeleton } from '../../components/common/Skeleton';
+import { TableSkeleton } from '../../components/common/TableSkeleton';
 
 ChartJS.register(
   CategoryScale,
@@ -30,6 +33,7 @@ const Dashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [terminalLogs, setTerminalLogs] = useState<{time: string, text: string, type?: string}[]>([]);
 
   // Simulation de l'activité blockchain en temps réel
@@ -121,6 +125,8 @@ const Dashboard: React.FC = () => {
         setRecentRequests(requestsRes.data?.demandes || requestsRes.data || []);
       } catch (error) {
         console.error('Erreur:', error);
+      } finally {
+        setLoading(false);
       }
     };
     
@@ -305,89 +311,100 @@ const Dashboard: React.FC = () => {
         </div>
       )}
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-surface-container-lowest p-5 signature-card shadow-sm border-l-4 border-primary">
-          <p className="text-outline text-xs mb-1">Total Demandes</p>
-          <div className="flex items-end justify-between">
-            <h3 className="text-2xl font-headline font-bold text-on-surface">{stats?.total || 0}</h3>
-            <span className="text-green-600 text-[10px] font-bold bg-green-50 px-2 py-0.5 rounded flex items-center gap-0.5">
-              En cours: {stats?.soumises || 0}
-            </span>
+      {loading ? (
+        <DashboardCardsSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-surface-container-lowest p-5 signature-card shadow-sm border-l-4 border-primary">
+            <p className="text-outline text-xs mb-1">Total Demandes</p>
+            <div className="flex items-end justify-between">
+              <h3 className="text-2xl font-headline font-bold text-on-surface">{stats?.total || 0}</h3>
+              <span className="text-green-600 text-[10px] font-bold bg-green-50 px-2 py-0.5 rounded flex items-center gap-0.5">
+                En cours: {stats?.soumises || 0}
+              </span>
+            </div>
+          </div>
+          <div className="bg-surface-container-lowest p-5 signature-card shadow-sm border-l-4 border-[#2e7d32]">
+            <p className="text-outline text-xs mb-1">Délivrés auto</p>
+            <div className="flex items-end justify-between">
+              <h3 className="text-2xl font-headline font-bold text-on-surface">{stats?.delivrees || 0}</h3>
+              <span className="text-green-600 text-[10px] font-bold bg-green-50 px-2 py-0.5 rounded flex items-center gap-0.5">
+                <span className="material-symbols-outlined text-xs">check_circle</span> {stats?.tauxDelivrance || 0}%
+              </span>
+            </div>
+          </div>
+          <div className="bg-surface-container-lowest p-5 signature-card shadow-sm border-l-4 border-[#fcab28]">
+            <p className="text-outline text-xs mb-1">En attente</p>
+            <div className="flex items-end justify-between">
+              <h3 className="text-2xl font-headline font-bold text-on-surface">{stats?.enAttente || 0}</h3>
+              <span className="text-secondary text-[10px] font-bold bg-secondary/5 px-2 py-0.5 rounded flex items-center gap-0.5">
+                <span className="material-symbols-outlined text-xs">pending</span> Action requise
+              </span>
+            </div>
+          </div>
+          <div className="bg-surface-container-lowest p-5 signature-card shadow-sm border-l-4 border-[#ac0c18]">
+            <p className="text-outline text-xs mb-1">Fraudes bloquées</p>
+            <div className="flex items-end justify-between">
+              <h3 className="text-2xl font-headline font-bold text-on-surface">{stats?.fraudes || 0}</h3>
+              <span className="text-tertiary text-[10px] font-bold bg-tertiary/5 px-2 py-0.5 rounded flex items-center gap-0.5">
+                <span className="material-symbols-outlined text-xs">security</span> Vigilance
+              </span>
+            </div>
           </div>
         </div>
-        <div className="bg-surface-container-lowest p-5 signature-card shadow-sm border-l-4 border-[#2e7d32]">
-          <p className="text-outline text-xs mb-1">Délivrés auto</p>
-          <div className="flex items-end justify-between">
-            <h3 className="text-2xl font-headline font-bold text-on-surface">{stats?.delivrees || 0}</h3>
-            <span className="text-green-600 text-[10px] font-bold bg-green-50 px-2 py-0.5 rounded flex items-center gap-0.5">
-              <span className="material-symbols-outlined text-xs">check_circle</span> {stats?.tauxDelivrance || 0}%
-            </span>
-          </div>
-        </div>
-        <div className="bg-surface-container-lowest p-5 signature-card shadow-sm border-l-4 border-[#fcab28]">
-          <p className="text-outline text-xs mb-1">En attente</p>
-          <div className="flex items-end justify-between">
-            <h3 className="text-2xl font-headline font-bold text-on-surface">{stats?.enAttente || 0}</h3>
-            <span className="text-secondary text-[10px] font-bold bg-secondary/5 px-2 py-0.5 rounded flex items-center gap-0.5">
-              <span className="material-symbols-outlined text-xs">pending</span> Action requise
-            </span>
-          </div>
-        </div>
-        <div className="bg-surface-container-lowest p-5 signature-card shadow-sm border-l-4 border-[#ac0c18]">
-          <p className="text-outline text-xs mb-1">Fraudes bloquées</p>
-          <div className="flex items-end justify-between">
-            <h3 className="text-2xl font-headline font-bold text-on-surface">{stats?.fraudes || 0}</h3>
-            <span className="text-tertiary text-[10px] font-bold bg-tertiary/5 px-2 py-0.5 rounded flex items-center gap-0.5">
-              <span className="material-symbols-outlined text-xs">security</span> Vigilance
-            </span>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Visualizations & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-surface-container-lowest p-6 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h4 className="font-headline font-bold text-lg text-primary">Documents délivrés</h4>
-              <p className="text-[10px] text-outline uppercase tracking-widest">Analyse sur les 7 derniers jours</p>
-            </div>
-            <select className="bg-surface-container-low border-none text-[10px] rounded-lg px-3 py-1 font-bold text-outline outline-none">
-              <option>Cette semaine</option>
-              <option>Mois dernier</option>
-            </select>
-          </div>
-          <div className="h-64">
-            <Bar data={barData} options={barOptions} />
-          </div>
+      {loading ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <Skeleton className="h-[400px] w-full lg:col-span-2 rounded-lg" />
+          <Skeleton className="h-[400px] w-full rounded-lg" />
         </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 bg-surface-container-lowest p-6 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h4 className="font-headline font-bold text-lg text-primary">Documents délivrés</h4>
+                <p className="text-[10px] text-outline uppercase tracking-widest">Analyse sur les 7 derniers jours</p>
+              </div>
+              <select className="bg-surface-container-low border-none text-[10px] rounded-lg px-3 py-1 font-bold text-outline outline-none">
+                <option>Cette semaine</option>
+                <option>Mois dernier</option>
+              </select>
+            </div>
+            <div className="h-64">
+              <Bar data={barData} options={barOptions} />
+            </div>
+          </div>
 
-        <div className="bg-surface-container-lowest p-6 rounded-lg shadow-sm">
-          <h4 className="font-headline font-bold text-lg text-primary mb-1">Répartition par statut</h4>
-          <p className="text-[10px] text-outline uppercase tracking-widest mb-8">État global du registre</p>
-          <div className="h-56 flex items-center justify-center relative">
-            <Doughnut data={donutData} options={donutOptions} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-bold font-headline text-primary">{stats?.total || 0}</span>
-              <span className="text-[10px] text-outline">Total</span>
+          <div className="bg-surface-container-lowest p-6 rounded-lg shadow-sm">
+            <h4 className="font-headline font-bold text-lg text-primary mb-1">Répartition par statut</h4>
+            <p className="text-[10px] text-outline uppercase tracking-widest mb-8">État global du registre</p>
+            <div className="h-56 flex items-center justify-center relative">
+              <Doughnut data={donutData} options={donutOptions} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-2xl font-bold font-headline text-primary">{stats?.total || 0}</span>
+                <span className="text-[10px] text-outline">Total</span>
+              </div>
             </div>
-          </div>
-          <div className="mt-6 space-y-3">
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-primary"></span> Validés</span>
-              <span className="font-bold">{stats?.total > 0 ? Math.round((stats.delivrees / stats.total) * 100) : 0}%</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary"></span> En cours</span>
-              <span className="font-bold">{stats?.total > 0 ? Math.round(((stats.soumises + stats.enVerification + stats.enProduction) / stats.total) * 100) : 0}%</span>
-            </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-tertiary"></span> Rejetés</span>
-              <span className="font-bold">{stats?.total > 0 ? Math.round((stats.rejetees / stats.total) * 100) : 0}%</span>
+            <div className="mt-6 space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-primary"></span> Validés</span>
+                <span className="font-bold">{stats?.total > 0 ? Math.round((stats.delivrees / stats.total) * 100) : 0}%</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-secondary"></span> En cours</span>
+                <span className="font-bold">{stats?.total > 0 ? Math.round(((stats.soumises + stats.enVerification + stats.enProduction) / stats.total) * 100) : 0}%</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-tertiary"></span> Rejetés</span>
+                <span className="font-bold">{stats?.total > 0 ? Math.round((stats.rejetees / stats.total) * 100) : 0}%</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Recent Requests Table */}
       <div className="bg-surface-container-lowest rounded-lg shadow-sm overflow-hidden">
@@ -407,45 +424,53 @@ const Dashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
-              {recentRequests.map((req) => (
-                <tr key={req.id} className="hover:bg-surface-container-low transition-colors group">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px]">
-                        {req.citoyen.prenom[0]}{req.citoyen.nom[0]}
+              {loading ? (
+                <TableSkeleton columns={5} rows={5} />
+              ) : recentRequests.length === 0 ? (
+                <tr><td colSpan={5} className="py-12 text-center text-outline italic">Aucune demande transmise récemment</td></tr>
+              ) : (
+                recentRequests.map((req) => (
+                  <tr key={req.id} className="hover:bg-surface-container-low transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px]">
+                          {req.citoyen.prenom[0]}{req.citoyen.nom[0]}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold">{req.citoyen.prenom} {req.citoyen.nom}</p>
+                          <p className="text-[10px] font-mono text-outline font-bold">REF: {req.reference}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold">{req.citoyen.prenom} {req.citoyen.nom}</p>
-                        <p className="text-[10px] font-mono text-outline font-bold">REF: {req.reference}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-xs font-medium">{req.type}</td>
-                  <td className="px-6 py-4 text-xs text-outline font-bold tracking-tight">
-                    {(() => {
-                      const d = req.dateSoumission || req.createdAt ? new Date(req.dateSoumission || req.createdAt) : null;
-                      return d && !isNaN(d.getTime()) ? d.toLocaleDateString('fr-FR') : '---';
-                    })()}
-                  </td>
-                  <td className="px-6 py-4 text-xs">
-                    <span className={`px-2 py-1 rounded text-[10px] font-bold inline-flex items-center gap-1 ${
-                      req.statut === 'DELIVREE' ? 'bg-green-50 text-green-700' :
-                      req.statut === 'REJETEE' ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700'
-                    }`}>
-                      <span className="material-symbols-outlined text-[12px]">
-                        {req.statut === 'DELIVREE' ? 'verified' : req.statut === 'REJETEE' ? 'cancel' : 'pending'}
-                      </span> 
-                      {req.statut}
-                    </span>
-                  </td>
-                    <button 
-                      onClick={() => openQuickView(req)}
-                      className="p-2 hover:bg-surface-container-highest rounded transition-colors text-outline"
-                    >
-                      <span className="material-symbols-outlined text-sm">visibility</span>
-                    </button>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-4 text-xs font-medium">{req.type}</td>
+                    <td className="px-6 py-4 text-xs text-outline font-bold tracking-tight">
+                      {(() => {
+                        const d = req.dateSoumission || req.createdAt ? new Date(req.dateSoumission || req.createdAt) : null;
+                        return d && !isNaN(d.getTime()) ? d.toLocaleDateString('fr-FR') : '---';
+                      })()}
+                    </td>
+                    <td className="px-6 py-4 text-xs">
+                      <span className={`px-2 py-1 rounded text-[10px] font-bold inline-flex items-center gap-1 ${
+                        req.statut === 'DELIVREE' ? 'bg-green-50 text-green-700' :
+                        req.statut === 'REJETEE' ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700'
+                      }`}>
+                        <span className="material-symbols-outlined text-[12px]">
+                          {req.statut === 'DELIVREE' ? 'verified' : req.statut === 'REJETEE' ? 'cancel' : 'pending'}
+                        </span> 
+                        {req.statut}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button 
+                        onClick={() => openQuickView(req)}
+                        className="p-2 hover:bg-surface-container-highest rounded transition-colors text-outline"
+                      >
+                        <span className="material-symbols-outlined text-sm">visibility</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

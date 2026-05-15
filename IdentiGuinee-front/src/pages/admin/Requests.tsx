@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { demandeService } from '../../services/demande.service';
 import { toast } from 'react-hot-toast';
+import { TableSkeleton } from '../../components/common/TableSkeleton';
+
 
 const Requests: React.FC = () => {
   const [requests, setRequests] = useState<any[]>([]);
@@ -9,6 +11,9 @@ const Requests: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('Tous les statuts');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,6 +27,8 @@ const Requests: React.FC = () => {
         setStats(statsRes.data || statsRes);
       } catch (error) {
         console.error('Erreur:', error);
+      } finally {
+        setLoading(false);
       }
     };
     
@@ -33,17 +40,20 @@ const Requests: React.FC = () => {
 
   const handleUpdateStatut = async (id: string, statut: string, progression: number) => {
     try {
+      setLoading(true);
       await demandeService.updateStatut(id, { statut, progression });
       toast.success(`Statut mis à jour : ${statut}`);
       // Actualisation
       const requestsRes = await demandeService.getAll();
-      setRequests(requestsRes.data.data?.demandes || []);
+      setRequests(requestsRes.data?.demandes || requestsRes.data.data?.demandes || []);
       
       if (selectedRequest?.id === id) {
         setSelectedRequest({ ...selectedRequest, statut, progression });
       }
     } catch (error: any) {
       toast.error('Erreur lors de la mise à jour');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -258,9 +268,15 @@ const Requests: React.FC = () => {
             className="w-full bg-surface-container-low border-none rounded-lg pl-10 h-10 text-sm focus:ring-primary/20 outline-none" 
             placeholder="Chercher par nom, NIN, ID dossier..." 
             type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <select className="bg-surface-container-low border-none rounded-lg h-10 px-4 text-sm text-on-surface-variant focus:ring-primary/20 outline-none">
+        <select 
+          className="bg-surface-container-low border-none rounded-lg h-10 px-4 text-sm text-on-surface-variant focus:ring-primary/20 outline-none"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
           <option>Tous les statuts</option>
           <option>Délivré</option>
           <option>En attente</option>
@@ -280,43 +296,73 @@ const Requests: React.FC = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant/10">
-            {requests.map((req, i) => (
-              <tr key={req.id} className="hover:bg-surface-container-low transition-colors group">
-                <td className="px-6 py-4 text-xs font-bold text-outline">{i+1}</td>
-                <td className="px-6 py-4 font-mono text-[11px] font-bold">{req.reference}</td>
-                <td className="px-6 py-4 text-sm font-bold">{req.citoyen.prenom} {req.citoyen.nom}</td>
-                <td className="px-6 py-4 text-xs text-outline">
-                  {(() => {
-                    const d = req.dateSoumission ? new Date(req.dateSoumission) : null;
-                    return d && !isNaN(d.getTime()) ? d.toLocaleDateString('fr-FR') : '---';
-                  })()}
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold ${
-                    req.statut === 'DELIVREE' ? 'bg-green-50 text-green-700' :
-                    req.statut === 'REJETEE' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-orange-700'
-                  }`}>{req.statut}</span>
-                </td>
-                <td className="px-6 py-4 text-right flex justify-end gap-2">
-                  <button 
-                    onClick={() => openQuickView(req)}
-                    className="p-1.5 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
-                    title="Voir les détails"
-                  >
-                    <span className="material-symbols-outlined text-lg">visibility</span>
-                  </button>
-                  {req.statut === 'SOUMISE' && (
-                    <button onClick={() => handleUpdateStatut(req.id, 'VERIFICATION', 30)} className="bg-primary text-white px-2 py-1 rounded text-[10px] font-bold">VÉRIFIER</button>
-                  )}
-                  {req.statut === 'VERIFICATION' && (
-                    <button onClick={() => handleUpdateStatut(req.id, 'PRODUCTION', 60)} className="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">PRODUIRE</button>
-                  )}
-                  {req.statut === 'PRODUCTION' && (
-                    <button onClick={() => handleUpdateStatut(req.id, 'DELIVREE', 100)} className="bg-green-600 text-white px-2 py-1 rounded text-[10px] font-bold">DÉLIVRER</button>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {loading ? (
+              <TableSkeleton columns={6} />
+            ) : (() => {
+              const filteredRequests = requests.filter(req => {
+                if (statusFilter === 'Délivré' && req.statut !== 'DELIVREE') return false;
+                if (statusFilter === 'En attente' && (req.statut === 'DELIVREE' || req.statut === 'REJETEE')) return false;
+                if (searchTerm) {
+                  const term = searchTerm.toLowerCase();
+                  const nom = req.citoyen?.nom?.toLowerCase() || '';
+                  const prenom = req.citoyen?.prenom?.toLowerCase() || '';
+                  const nin = req.citoyen?.nin?.toLowerCase() || '';
+                  const ref = req.reference?.toLowerCase() || '';
+                  if (!nom.includes(term) && !prenom.includes(term) && !nin.includes(term) && !ref.includes(term)) {
+                    return false;
+                  }
+                }
+                return true;
+              });
+
+              if (filteredRequests.length === 0) {
+                return (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-outline italic">
+                      Aucune demande trouvée.
+                    </td>
+                  </tr>
+                );
+              }
+
+              return filteredRequests.map((req, i) => (
+                <tr key={req.id} className="hover:bg-surface-container-low transition-colors group">
+                  <td className="px-6 py-4 text-xs font-bold text-outline">{i+1}</td>
+                  <td className="px-6 py-4 font-mono text-[11px] font-bold">{req.reference}</td>
+                  <td className="px-6 py-4 text-sm font-bold">{req.citoyen.prenom} {req.citoyen.nom}</td>
+                  <td className="px-6 py-4 text-xs text-outline">
+                    {(() => {
+                      const d = req.dateSoumission ? new Date(req.dateSoumission) : null;
+                      return d && !isNaN(d.getTime()) ? d.toLocaleDateString('fr-FR') : '---';
+                    })()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded text-[10px] font-bold ${
+                      req.statut === 'DELIVREE' ? 'bg-green-50 text-green-700' :
+                      req.statut === 'REJETEE' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-orange-700'
+                    }`}>{req.statut}</span>
+                  </td>
+                  <td className="px-6 py-4 text-right flex justify-end gap-2">
+                    <button 
+                      onClick={() => openQuickView(req)}
+                      className="p-1.5 text-outline hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                      title="Voir les détails"
+                    >
+                      <span className="material-symbols-outlined text-lg">visibility</span>
+                    </button>
+                    {req.statut === 'SOUMISE' && (
+                      <button onClick={() => handleUpdateStatut(req.id, 'VERIFICATION', 30)} className="bg-primary text-white px-2 py-1 rounded text-[10px] font-bold">VÉRIFIER</button>
+                    )}
+                    {req.statut === 'VERIFICATION' && (
+                      <button onClick={() => handleUpdateStatut(req.id, 'PRODUCTION', 60)} className="bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-bold">PRODUIRE</button>
+                    )}
+                    {req.statut === 'PRODUCTION' && (
+                      <button onClick={() => handleUpdateStatut(req.id, 'DELIVREE', 100)} className="bg-green-600 text-white px-2 py-1 rounded text-[10px] font-bold">DÉLIVRER</button>
+                    )}
+                  </td>
+                </tr>
+              ));
+            })()}
           </tbody>
         </table>
       </div>

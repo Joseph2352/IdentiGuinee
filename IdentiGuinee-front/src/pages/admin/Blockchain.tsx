@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { blockchainService } from '../../services/blockchain.service';
+import { TableSkeleton } from '../../components/common/TableSkeleton';
 
 
 const Blockchain: React.FC = () => {
@@ -157,37 +158,41 @@ const Blockchain: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/10">
-              {transactions.map((tx, i) => (
-                <tr key={i} className="hover:bg-surface-container-low transition-colors group">
-                  <td className="px-6 py-4 font-mono text-xs font-bold text-primary">#{tx.blockNumber || '---'}</td>
-                  <td className="px-6 py-4 text-xs text-outline">{new Date(tx.createdAt).toLocaleString()}</td>
-                  <td className="px-6 py-4">
-                    <span className="bg-secondary/10 text-secondary-container px-2 py-1 rounded text-[10px] font-bold border border-secondary/20 uppercase">
-                      {tx.type.replace(/_/g, ' ')}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <a 
-                      href={`https://sepolia.etherscan.io/tx/${tx.txHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-mono text-[11px] text-primary hover:text-primary-container bg-primary/5 px-2 py-1 rounded border border-primary/10 transition-colors flex items-center gap-1 w-fit"
-                      title="Voir sur l'explorateur (Sepolia)"
-                    >
-                      {tx.txHash.substring(0, 10)}...{tx.txHash.substring(tx.txHash.length - 10)}
-                      <span className="material-symbols-outlined text-[12px]">open_in_new</span>
-                    </a>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase tracking-widest">
-                      <span className="material-symbols-outlined text-sm">lock</span>
-                      Confirmé
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {loading && <tr><td colSpan={5} className="py-12 text-center text-outline italic">Chargement du ledger...</td></tr>}
-              {!loading && transactions.length === 0 && <tr><td colSpan={5} className="py-12 text-center text-outline italic">Aucune transaction enregistrée</td></tr>}
+              {loading ? (
+                <TableSkeleton columns={5} />
+              ) : transactions.length === 0 ? (
+                <tr><td colSpan={5} className="py-12 text-center text-outline italic">Aucune transaction enregistrée</td></tr>
+              ) : (
+                transactions.map((tx, i) => (
+                  <tr key={i} className="hover:bg-surface-container-low transition-colors group">
+                    <td className="px-6 py-4 font-mono text-xs font-bold text-primary">#{tx.blockNumber || '---'}</td>
+                    <td className="px-6 py-4 text-xs text-outline">{new Date(tx.createdAt).toLocaleString()}</td>
+                    <td className="px-6 py-4">
+                      <span className="bg-secondary/10 text-secondary-container px-2 py-1 rounded text-[10px] font-bold border border-secondary/20 uppercase">
+                        {tx.type.replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <a 
+                        href={`https://sepolia.etherscan.io/tx/${tx.txHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-[11px] text-primary hover:text-primary-container bg-primary/5 px-2 py-1 rounded border border-primary/10 transition-colors flex items-center gap-1 w-fit"
+                        title="Voir sur l'explorateur (Sepolia)"
+                      >
+                        {tx.txHash.substring(0, 10)}...{tx.txHash.substring(tx.txHash.length - 10)}
+                        <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                      </a>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 uppercase tracking-widest">
+                        <span className="material-symbols-outlined text-sm">lock</span>
+                        Confirmé
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

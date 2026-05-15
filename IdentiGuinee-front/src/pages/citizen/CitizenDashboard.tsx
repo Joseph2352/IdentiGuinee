@@ -3,6 +3,8 @@ import { useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { demandeService } from '../../services/demande.service';
 import RequestModal from '../../components/citizen/RequestModal';
 import toast from 'react-hot-toast';
+import { DashboardCardsSkeleton } from '../../components/common/DashboardCardsSkeleton';
+import { Skeleton } from '../../components/common/Skeleton';
 
 const CitizenDashboard: React.FC = () => {
   const { profile, refreshProfile } = useOutletContext<{ profile: any; refreshProfile: () => Promise<void> }>();
@@ -68,8 +70,22 @@ const CitizenDashboard: React.FC = () => {
 
   if (!profile || loadingDemandes) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="space-y-8 animate-fadeIn">
+        <div className="flex justify-between items-center mb-2">
+           <div>
+             <Skeleton className="h-8 w-64 mb-2" />
+             <Skeleton className="h-4 w-48" />
+           </div>
+        </div>
+        <DashboardCardsSkeleton />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+           <div className="lg:col-span-2">
+             <Skeleton className="h-[400px] w-full rounded-2xl" />
+           </div>
+           <div>
+             <Skeleton className="h-[400px] w-full rounded-3xl" />
+           </div>
+        </div>
       </div>
     );
   }
@@ -171,14 +187,14 @@ const CitizenDashboard: React.FC = () => {
               </button>
             </div>
             
-            <div className="flex flex-col items-center justify-center p-4 bg-surface-container-low rounded-xl">
+            <div className="flex flex-col items-center justify-center p-12 bg-surface-container-low rounded-xl">
                {/* THE REAL BACKEND GENERATED CARD WITH 3D FLIP */}
-               <div className="relative w-full max-w-[440px] aspect-[1.586/1] perspective-1000 cursor-pointer group" onClick={() => setIsFlipped(!isFlipped)}>
-                 <div className={`card-flip-inner shadow-2xl rounded-2xl ${isFlipped ? 'card-flipped' : ''}`}>
-                    
-                    {/* FRONT FACE (RECTO) */}
-                    <div className="card-face">
-                       {activeCard?.carteRectoUrl ? (
+                <div className="relative w-full max-w-[440px] perspective-1000 cursor-pointer group" onClick={() => setIsFlipped(!isFlipped)}>
+                  <div className={`card-flip-inner shadow-2xl rounded-2xl ${isFlipped ? 'card-flipped' : ''}`}>
+                     
+                     {/* FRONT FACE (RECTO) - Relative for dynamic height */}
+                     <div className="card-face !relative z-10 h-auto">
+                        {activeCard?.carteRectoUrl ? (
                          <div className="w-full h-full rounded-2xl overflow-hidden border border-white/20 bg-white flex flex-col">
                            <div className="tricolor-bar w-full h-1"></div>
                            <img 

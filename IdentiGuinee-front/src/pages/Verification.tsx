@@ -122,10 +122,10 @@ const Verification: React.FC = () => {
         }
       } else {
         // Saisie manuelle classique (GN-XXXX) ou lien URL scanné
-        identifiantToSend = rawValue;
+        identifiantToSend = rawValue.replace(/-/g, '');
       }
     } catch (e) {
-      identifiantToSend = rawValue;
+      identifiantToSend = rawValue.replace(/-/g, '');
     }
 
     if (!identifiantToSend) {
@@ -135,7 +135,6 @@ const Verification: React.FC = () => {
 
     setStatus('scanning');
     try {
-      // La recherche se fait STRICTEMENT via le paramètre numeroCarte comme demandé
       const response = await verificationService.verifierCarte({ numeroCarte: identifiantToSend });
       setResultData(response.data);
       setStatus('authentic');
@@ -148,16 +147,31 @@ const Verification: React.FC = () => {
   };
 
   const formatUID = (value: string) => {
-    const cleaned = value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+    let raw = value.replace(/-/g, '').toUpperCase();
+    let prefix = '';
+    let digits = '';
+
+    if (raw.startsWith('GN')) {
+      prefix = 'GN';
+      digits = raw.substring(2).replace(/[^0-9]/g, '');
+    } else if (raw.startsWith('G')) {
+      prefix = 'G';
+      digits = raw.substring(1).replace(/[^0-9]/g, '');
+    } else {
+      digits = raw.replace(/[^0-9]/g, '');
+    }
+
+    const cleaned = prefix + digits;
     let formatted = cleaned;
+
     if (cleaned.startsWith('GN')) {
-      const rest = cleaned.substring(2);
-      const groups = rest.match(/.{1,4}/g) || [];
+      const groups = digits.match(/.{1,4}/g) || [];
       formatted = 'GN' + (groups.length > 0 ? '-' + groups.join('-') : '');
     } else {
       const groups = cleaned.match(/.{1,4}/g) || [];
       formatted = groups.join('-');
     }
+
     return formatted.substring(0, 17); // Max length for GN-XXXX-XXXX-XXXX
   };
 
@@ -294,10 +308,12 @@ const Verification: React.FC = () => {
                   </div>
                 )}
                 
-                <div className="mt-8 flex items-center gap-4 p-5 bg-surface-container-low rounded-lg border border-surface-variant">
-                  <span className="material-symbols-outlined text-outline text-2xl">info</span>
-                  <p className="text-sm text-on-surface-variant leading-relaxed">Assurez-vous que l'éclairage est suffisant pour une lecture optimale du condensat cryptographique par les nœuds blockchain.</p>
-                </div>
+                {method === 'qr' && (
+                  <div className="mt-8 flex items-center gap-4 p-5 bg-surface-container-low rounded-lg border border-surface-variant">
+                    <span className="material-symbols-outlined text-outline text-2xl">info</span>
+                    <p className="text-sm text-on-surface-variant leading-relaxed">Assurez-vous que l'éclairage est suffisant pour une lecture optimale du condensat cryptographique par les nœuds blockchain.</p>
+                  </div>
+                )}
               </div>
             </div>
           </Reveal>
@@ -333,13 +349,13 @@ const Verification: React.FC = () => {
                     </div>
                   </div>
                   <div className="p-6">
-                    <div className="flex flex-col items-center justify-center p-2">
+                    <div className="flex flex-col items-center justify-center p-12">
                       {/* THE REAL BACKEND GENERATED CARD WITH 3D FLIP */}
-                      <div className="relative w-full max-w-[580px] aspect-[1.586/1] perspective-1000 cursor-pointer group" onClick={() => setIsFlipped(!isFlipped)}>
+                      <div className="relative w-full max-w-[580px] perspective-1000 cursor-pointer group" onClick={() => setIsFlipped(!isFlipped)}>
                         <div className={`card-flip-inner shadow-xl rounded-xl ${isFlipped ? 'card-flipped' : ''}`}>
                            
-                           {/* FRONT FACE (RECTO) */}
-                           <div className="card-face border border-white/20">
+                           {/* FRONT FACE (RECTO) - Relative for dynamic height */}
+                           <div className="card-face !relative z-10 h-auto border border-white/20">
                               {resultData?.carteRectoUrl ? (
                                 <div className="w-full h-full rounded-xl overflow-hidden bg-white">
                                   <img 
